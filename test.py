@@ -1,8 +1,7 @@
 # todo table
 import re
-from core import HTMK
+from src.core import Pyhtmd
 import time
-from utils import remove_attrs
 
 table = '<table class="tfo-notebook-buttons tfo-api" align="left"><tbody><tr><td>  <a target="_blank" ' \
         'href="/versions/r1.15/api_docs/python/tf/clip_by_value">  <img ' \
@@ -70,7 +69,7 @@ img1 = '<img src="https://www.baidu.com/img/bd_logo1.png" alt="百度logo">'
 # todo table
 
 start = time.time()
-x = HTMK(i).markdown()
+x = Pyhtmd(i).markdown()
 print("结果：\n", x)
 end = time.time()
 print('耗时====：', end - start)

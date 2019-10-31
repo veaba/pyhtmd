@@ -1,6 +1,6 @@
 # 解析器
 import re
-from utils import remove_parent_wrap, is_has_child, get_tag_text, get_tag_name, get_href,get_src,get_alt, clean_up,remove_attrs
+from .utils import remove_parent_wrap, is_has_child, get_tag_text, get_tag_name, get_href,get_src,get_alt, clean_up,remove_attrs
 # ***************************解析部分************************ #
 # 将获取被包围的node节点解析成为数组
 # Given a tensor <code translate="no" dir="ltr">t<\/code>, this operation returns a tensor of the same type  andshape as <code translate="no" dir="ltr">t<\/code> with its values clipped to <code translate="no"

@@ -4,11 +4,11 @@
 # html to markdown
 
 import re
-from utils import is_li, is_head,is_img, is_pre, get_tag_text, is_has_child,remove_attrs
-from html_parser import parser_li, parser_head, parser_pre, parser_p,parser_img
+from .utils import is_li, is_head,is_img, is_pre, get_tag_text, is_has_child,remove_attrs
+from .html_parser import parser_li, parser_head, parser_pre, parser_p,parser_img
 
 
-class HTMK:
+class Pyhtmd:
     def __init__(self, html=""):
         self.html = html
         # 错误处理
