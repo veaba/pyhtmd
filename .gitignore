@@ -2,3 +2,5 @@ __pycache__
 .vscode
 .idea
 .pypirc
+pyhtmd.egg-info
+dist
