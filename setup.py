@@ -19,6 +19,7 @@ setup(
     keywords=("html", 'markdown', "parser", "pyhtmd"),
     description="A Python HTML to Markdown parser",
     long_description=loog_description,
+    long_description_content_type="text/markdown",
     url="https://github.com/veaba/pyhtmd",
     author="veaba",
     author_email="godpu@outlook.com",
