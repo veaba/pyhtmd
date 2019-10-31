@@ -1,7 +1,6 @@
 
 # TODO 1、校验是合法的HTML字符串
 # TODO 2、将html string 分割为数组才能使用本文件
-import re
 # todo：逐行将HTML转为markdown字符串输出
 # html to markdown
 
@@ -58,14 +57,6 @@ class HTMK:
 			return False
 		else:
 			return True
-
-	# 判断如果不是被包围的标签
-	@staticmethod
-	def __is_no_wrap(self):
-		if re.match(r'^.*<(.*?)>.*$',self.html):
-			return False
-		else:
-			return True
 	# todo 判断所包围的标签还含有子标签,
 	# 存在 True，不存在False
 	@staticmethod
@@ -82,8 +73,13 @@ class HTMK:
 		the_href_element= re.search(r'(href=")(.+?)(")',element)
 		the_href= re.sub(r'(href=")(.+?)(")','\\2',the_href_element.group()) # 获得a标签的地址
 		return the_href
-
-
+	
+	# 移除无关标签,净化标签
+	# 比如：span
+	# <span>xx</span>  => xxx
+	@staticmethod
+	def __clean_up_tag(self,element):
+		return re.sub(r'(<span>)(.*?)(<\/span>)','\\2',element.strip())
 	# 剥离外边父级标签,等同于获取内容  
 	@staticmethod 
 	def __remove_parent_wrap(self,html=""):
@@ -96,8 +92,10 @@ class HTMK:
 	def __get_tag_text(self,html=""):
 		text=''
 		if not self.__is_has_child(self):
+			print('进入：__get_tag_text，不存在子元素')
 			text= self.__remove_parent_wrap(self,html=html)
 		else:
+			print('进入：__get_tag_text，存在子元素')
 			return self.__get_tag_text(self,html=self.__remove_parent_wrap(self,html=html))
 		return text
    
@@ -109,16 +107,54 @@ class HTMK:
 	# 判断是哪种标签，todo，此时先判断code
 	@staticmethod
 	def __check_what_element(self,element=""):
-		tag_name=re.sub(r'<(.*?) .*$','\\1',element)
+		clear_attrs_element=re.sub(r' (.*?)>','>',element)
+		tag_name=re.sub(r'<(.*?)>.*$','\\1',clear_attrs_element)
+		# tag_name=re.sub(r'<(.*?) .*$','\\1',element)
 		if tag_name=='code':
+			print('what：code')
 			return self.__parser_code(self,element=element)
 		elif tag_name=='a':
+			print('what：a')
 			return self.__parser_a(self,element=element)
 		# todo ...
+		elif tag_name=='strong':
+			print('what：strong')
+			return self.__parser_strong(self,element=element)
+		elif tag_name=='b':
+			return self.__parser_b(self,element=element)
+		print('标签名字:',tag_name)
 		return element
 
 	# ***************************解析部分************************ #
-	
+	# 将获取被包围的node节点解析成为数组
+	# Given a tensor <code translate="no" dir="ltr">t<\/code>, this operation returns a tensor of the same type  andshape as <code translate="no" dir="ltr">t<\/code> with its values clipped to <code translate="no"
+    # dir="ltr">clip_value_min<\/code> and <code translate="no" dir="ltr">clip_value_max</code>.Any values less than
+    # <code translate="no" dir="ltr">clip_value_min</code> are set to <code translate="no" 
+    # dir="ltr">clip_value_min</code>. Any valuesgreater than <code translate="no" dir="ltr">clip_value_max</code> are
+    # set to <code translate="no" dir="ltr">clip_value_max</code>. 
+	# ===> re.finditer(r'<(.*?)(>)(.*?)(<\/(.*?)>)', h)
+	"""
+	<code translate="no" dir="ltr">t</code>
+	<code translate="no" dir="ltr">t</code>
+	<code translate="no" dir="ltr">clip_value_min</code>
+	<code translate="no" dir="ltr">clip_value_max</code>
+	<code translate="no" dir="ltr">clip_value_min</code>
+	<code translate="no" dir="ltr">clip_value_min</code>
+	<code translate="no" dir="ltr">clip_value_max</code>
+	<code translate="no" dir="ltr">clip_value_max</code>
+	"""
+	@staticmethod
+	def __parser_p(self,html=""):
+		new_html=html 
+		html_blocks= re.finditer(r'<(.*?)(>)(.*?)(<\/(.*?)>)', html)
+		for item in html_blocks:
+			block_string=item.group() or ""
+			print('block_string:',block_string)
+			new_html=new_html.replace(block_string,self.__check_what_element(self,element=block_string))
+			print('what_element:',self.__check_what_element(self,element=block_string))
+			print('new_html:',new_html)
+		return new_html
+
 	# h1-h6 todo 可能还有其他子标签
 	@staticmethod
 	def __parser_head(self):
@@ -181,15 +217,37 @@ class HTMK:
 		left =re.sub(r'<a(.*?)>','',element)
 		a_content=re.sub(r'</a>','',left)
 		return '['+self.__check_what_element(self,element=a_content)+']('+the_href+')'
+	
+	# 解析strong
+	@staticmethod
+	def __parser_strong(self,element=""):
+		print('解析：__parser_strong')
+		left =re.sub(r'<strong(.*?)>','',element)
+		strong_content=re.sub(r'</strong>','',left)
+		return '**'+self.__check_what_element(self,element=strong_content)+'**'
+	
+	# 解析 b
+	@staticmethod
+	def __parser_b(self,element=""):
+		print('解析：__parser_a')
+		left =re.sub(r'<b(.*?)>','',element)
+		b_content=re.sub(r'</b>','',left)
+		return '**'+self.__check_what_element(self,element=b_content)+'**'
 	# todo 解析出来markdown
 	def markdown(self):
 		text=self.html
 		if self.__is_li(self):
+			print('__is_li')
 			text= self.__parser_li(self,html=self.html)
-		if self.__is_head(self):
+		elif self.__is_head(self):
+			print('__is_head')
 			text=self.__parser_head(self)
-			pass
-		if self.__is_pre(self):
+		elif self.__is_pre(self):
+			print('__is_pre')
 			text=self.__parser_pre(self,html=self.html)
+		else:
+			print('__parser_p')
+			# 此时就应该清空span标签
+			text=self.__parser_p(self,html=self.__clean_up_tag(self,self.html))
 		
 		return text
