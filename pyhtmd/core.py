@@ -25,20 +25,15 @@ class Pyhtmd:
     # todo 解析出来markdown
     def markdown(self):
         if is_li(self.html):
-            print('is_li')
             text = parser_li(self.html)
         elif is_head(self.html):
-            print('__is_head')
             clear_head_block=remove_attrs(self.html)
             text = parser_head(clear_head_block)
         elif is_pre(self.html):
-            print('__is_pre')
             text = parser_pre(self.html)
         elif is_img(self.html):
-            print('__is_img')
             text = parser_img(self.html)
         else:
-            print('__parser_p')
             # 此时就应该清空span标签
             clear_block = self.__clean_up_tag(self, block=self.html)
             text = parser_p(clear_block)

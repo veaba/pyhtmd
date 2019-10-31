@@ -9,14 +9,16 @@
 ####################################################
 
 from setuptools import setup, find_packages
+import sys
 
+with open('README.md','r',encoding='UTF-8') as f:
+    loog_description=f.read()
 setup(
     name="pyhtmd",
-    version="0.1.0",
+    version="0.1.1",
     keywords=("html", 'markdown', "parser", "pyhtmd"),
     description="A Python HTML to Markdown parser",
-    long_description="A Python HTML to Markdown parser, without using any third-party "
-                     "dependency.（一款Python版本的HTML转markdown解析器，不使用任何第三方工具）",
+    long_description=loog_description,
     url="https://github.com/veaba/pyhtmd",
     author="veaba",
     author_email="godpu@outlook.com",

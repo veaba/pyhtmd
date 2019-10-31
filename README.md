@@ -1,5 +1,20 @@
 # 一款Python版本的HTML转markdown解析器，不使用任何第三方工具
 
+## install 
+
+> pip install pyhtmd
+
+
+## usage
+
+```python
+from pyhtmd import Pyhtmd
+
+html="<code> Hello, world ! by Pyhtmd. </code>"
+
+```
+
+
 ## todo 开发中 
 
 
