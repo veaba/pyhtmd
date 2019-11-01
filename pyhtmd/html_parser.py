@@ -1,6 +1,12 @@
 # 解析器
 import re
-from .utils import remove_parent_wrap, is_has_child, get_tag_text, get_tag_name, get_href,get_src,get_alt, clean_up,remove_attrs
+from .utils import remove_parent_wrap, \
+remove_attrs,  \
+is_has_child,  \
+get_tag_text, \
+get_tag_name,  \
+get_href,\
+get_src,get_alt, clean_up
 # ***************************解析部分************************ #
 # 将获取被包围的node节点解析成为数组
 # Given a tensor <code translate="no" dir="ltr">t<\/code>, this operation returns a tensor of the same type  andshape as <code translate="no" dir="ltr">t<\/code> with its values clipped to <code translate="no"
@@ -83,11 +89,11 @@ def parser_li(block):
     for ele in temp_array:
         # 判断不存在包围子元素
         if not is_has_child(ele.group()):
-            text = '- '+get_tag_text(block)
+            text = '\n- '+get_tag_text(block)
         # 如果存在子元素
         else:
             remove_li_tag = remove_parent_wrap(ele.group())
-            text += '- ' + check_what_element(element=remove_li_tag) + '\n'
+            text += '\n- ' + check_what_element(element=remove_li_tag) + '\n'
     return text
 
 
@@ -95,29 +101,28 @@ def parser_li(block):
 def parser_pre(block):
     content = get_tag_text(block).replace('    ', '\n')
     content_remove_code = get_tag_text(content)
-    return '```\n' + content_remove_code + '\n```'
-
+    return '\n```\n' + content_remove_code + '\n```\n'
 
 # h1-h6 todo 可能还有其他子标签
 def parser_head(block):
-    text = ''
+    text = block
     tag_name = get_tag_name(block)
     if is_has_child(block):
         clearn_content = clean_up(block)
         return parser_head(clearn_content)
     else:
         if tag_name == 'h1':
-            text = '# ' + get_tag_text(block) + '\n'
+            text = '\n# ' + get_tag_text(text) + '\n'
         elif tag_name == 'h2':
-            text = '## ' + get_tag_text(block) + '\n'
+            text = '\n## ' + get_tag_text(text) + '\n'
         elif tag_name == 'h3':
-            text = '### ' + get_tag_text(block) + '\n'
+            text = '\n### ' + get_tag_text(text) + '\n'
         elif tag_name == 'h4':
-            text = '#### ' + get_tag_text(block) + '\n'
+            text = '\n#### ' + get_tag_text(text) + '\n'
         elif tag_name == 'h5':
-            text = '##### ' + get_tag_text(block) + '\n'
+            text = '\n##### ' + get_tag_text(text) + '\n'
         elif tag_name == 'h6':
-            text = '###### ' + get_tag_text(block) + '\n'
+            text = '\n###### ' + get_tag_text(text) + '\n'
     return text
 
 
@@ -163,9 +168,7 @@ def parser_b(element=""):
             return "**"+parser_code(remove_wrap,whitespace=" ")+'**'
         else:
             raise RuntimeError('意外的类型，需要调整源码')
-    else:
-        return parser_b_block(element)
-    return element
+    return parser_b_block(element)
 
 # 解析 img
 
@@ -176,12 +179,12 @@ def parser_img(block):
 
 # 解析，p block，默认块
 def parser_p(block):
-    new_html = block
-    html_blocks = re.finditer(r'<(.*?)(>)(.*?)(<\/(.*?)>)', block)
+    new_html=block
+    html_blocks = re.finditer(r'<(.*?)(>)(.*?)(<\/(.*?)>)', new_html)
     for item in html_blocks:
         block_string = item.group() or ""
         new_html = new_html.replace(block_string, check_what_element(element=block_string))
-    return new_html
+    return '\n'+new_html+'\n'
 
 
 # 判断是哪种标签开头，但不完全是包围的，todo，此时先判断code

@@ -109,13 +109,17 @@ def clean_up(block):
 
 # 剥离外边父级标签,等同于获取内容
 def remove_parent_wrap(block):
+    # todo
     left = re.sub(r'^<(.*?)(>)', '', block)
     return re.sub(r'<\/*\/([^\/]+[^\.])$', '', left)
 
-
+# 移除换行符
+def remove_new_line(block=""):
+    return block.replace('\n','')
 # 移除attrs
 def remove_attrs(block):
-    remove_h1 = re.sub(r'<h1(.*?)">', '<h1>', block)
+    content=block
+    remove_h1 = re.sub(r'<h1(.*?)">', '<h1>', content)
     remove_h2 = re.sub(r'<h2(.*?)">', '<h2>', remove_h1)
     remove_h3 = re.sub(r'<h3(.*?)">', '<h3>', remove_h2)
     remove_h4 = re.sub(r'<h4(.*?)">', '<h4>', remove_h3)
@@ -123,9 +127,12 @@ def remove_attrs(block):
     remove_h6 = re.sub(r'<h6(.*?)">', '<h6>', remove_h5)
     remove_code = re.sub(r'<code(.*?)">', '<code>', remove_h6)
     remove_span = re.sub(r'<span(.*?)">', '<span>', remove_code)
-    remove_b = re.sub(r'<b(.*?)">', '<b>', remove_span)
+    remove_button = re.sub(r'<button(.*?)">', '<button>', remove_span)
+    remove_b = re.sub(r'<b(.*?)">', '<b>', remove_button)
+    # 必须是button再导b标签
+    # remove_b = re.sub(r'<button(.*?)">', '<button>', content) 正则替换引发：RecursionError: maximum recursion depth exceeded while calling a Python object
     remove_div = re.sub(r'<div(.*?)">', '<div>', remove_b)
-    remove_a = re.sub(r'<div(.*?)">', '<div>', remove_div)
+    remove_a = re.sub(r'<a(.*?)">', '<a>', remove_div)
     return remove_a
 
 
