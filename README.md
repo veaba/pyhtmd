@@ -9,9 +9,10 @@
 
 ```python
 from pyhtmd import Pyhtmd
-
 html="<code> Hello, world ! by Pyhtmd. </code>"
-
+md= Pyhtmd(html)
+content=md.markdown()
+print(content) # `Hello, world ! by Pyhtmd.`
 ```
 
 
