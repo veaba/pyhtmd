@@ -83,7 +83,7 @@ def parser_li(block):
     for ele in temp_array:
         # 判断不存在包围子元素
         if not is_has_child(ele.group()):
-            text = get_tag_text(block)
+            text = '- '+get_tag_text(block)
         # 如果存在子元素
         else:
             remove_li_tag = remove_parent_wrap(ele.group())

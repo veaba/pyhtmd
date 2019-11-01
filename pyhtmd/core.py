@@ -37,5 +37,6 @@ class Pyhtmd:
             # 此时就应该清空span标签
             clear_block = self.__clean_up_tag(self, block=self.html)
             text = parser_p(clear_block)
+            
 
         return text

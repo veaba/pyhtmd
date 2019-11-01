@@ -77,9 +77,11 @@ def is_has_child(block):
 # 获取href地址url
 def get_href(block):
     the_href_element = re.search(r'(href=")(.+?)(")', block)
-    the_href = re.sub(r'(href=")(.+?)(")', '\\2', the_href_element.group())  # 获得a标签的地址
-    return the_href
-
+    if not the_href_element:
+        return ""
+    else:
+        the_href = re.sub(r'(href=")(.+?)(")', '\\2', the_href_element.group())  # 获得a标签的地址
+        return the_href
 
 # 获取src地址url
 def get_src(block):
