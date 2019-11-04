@@ -15,6 +15,21 @@ content=md.markdown()
 print(content) # `Hello, world ! by Pyhtmd.`
 ```
 
+## API
+Pyhtmd(html,
+ language="",
+ img=True
+)
+
+- language：类型 string （js、python、java等）
+- img:{Boolean}，默认True，可以不需要img渲染
+```python
+from pyhtmd import Pyhtmd
+html="<pre><code>import time\n print(time.time()) </code><pre>"
+md= Pyhtmd(html,language="python")
+content=md.markdown()
+print(content) # `Hello, world ! by Pyhtmd.`
+```
 
 ## todo 开发中 
 - 递归太多被打断了

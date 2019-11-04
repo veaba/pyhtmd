@@ -1,5 +1,21 @@
 import re
 
+HTML_TAGS = [
+    '<a',
+    '<b',
+    '<button',
+    '<div',
+    '<h1',
+    '<h2',
+    '<h3',
+    '<h4',
+    '<h5',
+    '<h6',
+    '<img',
+    '<pre',
+    '<span',
+]
+
 
 # 判断是否li开头的标签
 def is_li(block):
@@ -38,6 +54,14 @@ def is_img(block):
 # 判断是pre code 代码的标签
 def is_pre(block):
     if re.match(r'^.*\<pre', block):
+        return True
+    else:
+        return False
+
+
+# 判断是Quote，引用
+def is_quote(block):
+    if re.match(r'^.*<blockquote', block):
         return True
     else:
         return False
@@ -83,6 +107,7 @@ def get_href(block):
         the_href = re.sub(r'(href=")(.+?)(")', '\\2', the_href_element.group())  # 获得a标签的地址
         return the_href
 
+
 # 获取src地址url
 def get_src(block):
     the_src_element = re.search(r'(src=")(.+?)(")', block)
@@ -111,46 +136,82 @@ def clean_up(block):
 def remove_parent_wrap(block):
     # todo
     left = re.sub(r'^<(.*?)(>)', '', block)
-    return re.sub(r'<\/*\/([^\/]+[^\.])$', '', left)
+    right = re.sub(r'<\/*\/([^\/]+[^\.])$', '', left)
+    return right
+
 
 # 移除换行符
 def remove_new_line(block=""):
-    return block.replace('\n','')
+    return block.replace('\n', '')
+
+
+# 移除br
+def remove_br(block):
+    return block.replace('<br>', '\n').replace('</br>', '\n').replace('    ', '\n    ')
+
+
 # 移除attrs
 def remove_attrs(block):
-    content=block
+    # print('移除attrs入参：', block)
+    content = block
+    normal_tags = []  # 如果是空数组，则原样返回
+    for item in HTML_TAGS:
+        if item in block:
+            normal_tags.append(item)
+    if not len(normal_tags):
+        return content
     remove_h1 = re.sub(r'<h1(.*?)">', '<h1>', content)
     remove_h2 = re.sub(r'<h2(.*?)">', '<h2>', remove_h1)
     remove_h3 = re.sub(r'<h3(.*?)">', '<h3>', remove_h2)
     remove_h4 = re.sub(r'<h4(.*?)">', '<h4>', remove_h3)
     remove_h5 = re.sub(r'<h5(.*?)">', '<h5>', remove_h4)
     remove_h6 = re.sub(r'<h6(.*?)">', '<h6>', remove_h5)
-    remove_code = re.sub(r'<code(.*?)">', '<code>', remove_h6)
+    remove_pre = re.sub(r'<pre(.*?)">', '<pre>', remove_h6)
+    remove_code = re.sub(r'<code(.*?)">', '<code>', remove_pre)
     remove_span = re.sub(r'<span(.*?)">', '<span>', remove_code)
     remove_button = re.sub(r'<button(.*?)">', '<button>', remove_span)
-    remove_b = re.sub(r'<b(.*?)">', '<b>', remove_button)
-    # 必须是button再导b标签
-    # remove_b = re.sub(r'<button(.*?)">', '<button>', content) 正则替换引发：RecursionError: maximum recursion depth exceeded while calling a Python object
+    remove_a = remove_button
+    remove_a_attrs = re.search(r'<a(.*?)></a>', remove_button)
+    if remove_a_attrs:
+        remove_a_attrs = remove_a_attrs.group()
+        if not is_has_child(remove_a_attrs):
+            remove_a = re.sub(r'<a(.*?)></a>', '', remove_button)  # 需要保留src 和href 属性
+        else:
+            return remove_button
+    elif remove_a_attrs:
+        return block
+    remove_b = re.sub(r'<b(.*?)">', '<b>', remove_a)
     remove_div = re.sub(r'<div(.*?)">', '<div>', remove_b)
-    remove_a = re.sub(r'<a(.*?)">', '<a>', remove_div)
-    return remove_a
+    # 移除标签，如果内容不存在的话移除,针对无意义button、a标签。比如<h2>Modules<button></button><a></a></h2>  => <h2>Modules</h2>
+    ret = re.sub(r'(<button></button>|<a></a>)', '', remove_div)
+    # print('移除attrs结果：', ret)
+    return ret
 
 
 # 移除父级标签直接获取内容
 # <h1>xxx</h1> => xxx
 
 def get_tag_text(block):
-    text = ''
+    block = remove_br(block)
+    # print('获取内容，get_tag_text:\n', block)
     if not is_has_child(block):
-        text = remove_parent_wrap(block)
+        return remove_parent_wrap(block)
     else:
         return get_tag_text(remove_parent_wrap(block))
-    return text
 
 
 # 获取标签名，必须是干净标签，已移除attrs
-# <code>xxx </code>
-# ===> code
+# <code>xxx </code>  ===》 code
+# <a href="https://baidu.com">baidu.com </a>  ===> a
+
 def get_tag_name(block):
+    # print('获得标签名入参：', block)
     match_tag = re.match(r'<(.*?)>', block)
-    return re.sub(r'<(.*?)>', '\\1', match_tag.group())
+    if match_tag:
+        # 如果存在 类似 <a href="https://baidu.com">
+        tag_string = match_tag.group()
+        if tag_string.isspace():
+            return re.sub(r'<(.*?)>', '\\1', tag_string)
+    last_tag_name = re.sub(r'<(.*?)>.*$', '\\1', block, count=1)
+    # print("获得标签名出参：", last_tag_name)
+    return last_tag_name

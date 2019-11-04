@@ -1,12 +1,13 @@
 # 解析器
 import re
 from .utils import remove_parent_wrap, \
-remove_attrs,  \
-is_has_child,  \
-get_tag_text, \
-get_tag_name,  \
-get_href,\
-get_src,get_alt, clean_up
+    remove_attrs, \
+    is_has_child, \
+    get_tag_text, \
+    get_tag_name, \
+    get_href, \
+    get_src, get_alt, clean_up
+
 # ***************************解析部分************************ #
 # 将获取被包围的node节点解析成为数组
 # Given a tensor <code translate="no" dir="ltr">t<\/code>, this operation returns a tensor of the same type  andshape as <code translate="no" dir="ltr">t<\/code> with its values clipped to <code translate="no"
@@ -27,7 +28,6 @@ get_src,get_alt, clean_up
 """
 
 
-
 class Pip:
     def __init__(self, block=""):
         self.block = block
@@ -35,22 +35,23 @@ class Pip:
 
     # 工厂函数
     def factory(self):
-        block_content = self.__a_pip(self.block)
-        block_content = self.__p_pip(block_content)
+        block_content = self.__a_pip(self, self.block)
+        block_content = self.__p_pip(self, block_content)
         block_content = self.__b_pip(self, block_content)
-        block_content = self.__strong_pip(block_content)
-        block_content = self.__code_pip(block_content)
+        block_content = self.__strong_pip(self, block_content)
+        block_content = self.__code_pip(self, block_content)
         return block_content
 
+    @staticmethod
     def __a_pip(self, block):
-        block_content=block
-        a_blocks=re.finditer(r'<a(.*?)</a>', block)
+        block_content = block
+        a_blocks = re.finditer(r'<a(.*?)</a>', block)
         for item in a_blocks:
-            content=item.group()
-            block_content=block_content.replace(content,parser_a(content))
+            content = item.group()
+            block_content = block_content.replace(content, parser_a(content))
         return block_content
 
-
+    @staticmethod
     def __p_pip(self, block):
         return block
 
@@ -63,6 +64,7 @@ class Pip:
             block_content = block_content.replace(content, parser_b(content))
         return block_content
 
+    @staticmethod
     def __strong_pip(self, block):
         block_content = block
         strong_blocks = re.finditer(r'<strong(.*?)</strong>', block)
@@ -71,13 +73,14 @@ class Pip:
             block_content = block_content.replace(content, parser_strong(content))
         return block_content
 
+    @staticmethod
     def __code_pip(self, block):
-        code_content=block
+        code_content = block
         code_blocks = re.finditer(r'<code(.*?)</code>', block)
         # todo 先处理b标签
         for item in code_blocks:
-            content=item.group()
-            code_content=code_content.replace(content,parser_code(content))
+            content = item.group()
+            code_content = code_content.replace(content, parser_code(content))
         return code_content
 
 
@@ -89,7 +92,7 @@ def parser_li(block):
     for ele in temp_array:
         # 判断不存在包围子元素
         if not is_has_child(ele.group()):
-            text = '\n- '+get_tag_text(block)
+            text = '\n- ' + get_tag_text(block)
         # 如果存在子元素
         else:
             remove_li_tag = remove_parent_wrap(ele.group())
@@ -97,19 +100,43 @@ def parser_li(block):
     return text
 
 
-# 解析 pre code的标签
-def parser_pre(block):
-    content = get_tag_text(block).replace('    ', '\n')
-    content_remove_code = get_tag_text(content)
-    return '\n```\n' + content_remove_code + '\n```\n'
+# 解析 pre code的标签，必须<pre><code>code</code></pre>
+def parser_pre_block(block, language=""):
+    clear_wrap_pre = remove_parent_wrap(block)
+    if '<span' in clear_wrap_pre:
+        span_elements = re.finditer(r'<span(.*?)</span>', clear_wrap_pre)
+        for item in span_elements:
+            span_string = item.group() or ""
+            clear_wrap_pre = clear_wrap_pre.replace(span_string, get_tag_text(span_string))
+
+    clear_up_content = clean_up(clear_wrap_pre)  # 有问题！
+    content_remove_code = get_tag_text(clear_up_content)
+    return '\n```' + language + '\n' + content_remove_code + '\n```\n'
+
+
+# bug  len(tuple(html_elements))会中断迭代循环
+def parser_pre(element="", language=""):
+    new_html = ""
+    the_length = re.finditer(r'<pre(.*?)</pre>', element)
+    length = len(list(the_length))
+    if length > 1:
+        raise RuntimeError('意外的数组长度：parser_pre', length)
+    html_elements = re.finditer(r'<pre(.*?)</pre>', element)
+    # 此时需要保证pre就一个标签
+    for item in html_elements:
+        block_string = item.group() or ""
+        new_html = parser_pre_block(block_string, language=language)
+        break
+    return '\n' + new_html + '\n'
+
 
 # h1-h6 todo 可能还有其他子标签
 def parser_head(block):
     text = block
     tag_name = get_tag_name(block)
     if is_has_child(block):
-        clearn_content = clean_up(block)
-        return parser_head(clearn_content)
+        clear_content = clean_up(block)
+        return parser_head(clear_content)
     else:
         if tag_name == 'h1':
             text = '\n# ' + get_tag_text(text) + '\n'
@@ -130,9 +157,9 @@ def parser_head(block):
 # <code translate="no" dir="ltr">tf.compat.v2.clip_by_value</code>
 # => tf.compat.v2.clip_by_value
 
-def parser_code(element="",whitespace=""):
-    left = re.sub(r'<code(.*?)>', whitespace+'`', element.strip())
-    return re.sub(r'</code>', '`'+whitespace, left)
+def parser_code(element="", whitespace=" "):
+    left = re.sub(r'<code(.*?)>', whitespace + '`', element.strip())
+    return re.sub(r'</code>', '`' + whitespace, left)
 
 
 # 将a标签 <a href="/api_docs/python/tf/clip_by_value"><code translate="no" dir="ltr">tf.compat.v2.clip_by_value</code></a>
@@ -146,51 +173,67 @@ def parser_a(element=""):
     return '[' + check_what_element(element=a_content) + '](' + the_href + ')'
 
 
-# 解析strong
-def parser_strong(element=""):
-    left = re.sub(r'<strong(.*?)>', '', element)
-    strong_content = re.sub(r'</strong>', '', left)
-    return '**' + check_what_element(element=strong_content) + '**'
+# 解析quote
 
-
-# 纯解析block 块
-def parser_b_block(block):
-    left = re.sub(r'<b(.*?)>', '', block)
-    b_content = re.sub(r'</b>', '', left)
-    return '**' + get_tag_text(b_content) + '**'
-
-# 解析 b block
-def parser_b(element=""):
-    if is_has_child(element):
-        remove_wrap= remove_parent_wrap(element)
-        tag_name=get_tag_name(remove_wrap)
-        if tag_name =='code':
-            return "**"+parser_code(remove_wrap,whitespace=" ")+'**'
-        else:
-            raise RuntimeError('意外的类型，需要调整源码')
-    return parser_b_block(element)
-
-# 解析 img
-
-def parser_img(block):
-    src=get_src(block)
-    alt=get_alt(block)
-    return '!['+alt+']('+src+')'
-
-# 解析，p block，默认块
-def parser_p(block):
-    new_html=block
+def parser_quote(element=""):
+    new_html = element
     html_blocks = re.finditer(r'<(.*?)(>)(.*?)(<\/(.*?)>)', new_html)
     for item in html_blocks:
         block_string = item.group() or ""
         new_html = new_html.replace(block_string, check_what_element(element=block_string))
-    return '\n'+new_html+'\n'
+    return '\n>' + remove_parent_wrap(new_html) + '\n'
+
+
+# 解析strong
+def parser_strong(element=""):
+    left = re.sub(r'<strong(.*?)>', '', element)
+    strong_content = re.sub(r'</strong>', '', left)
+    return '**' + check_what_element(element=strong_content).strip() + '** '
+
+
+# 纯解析block 块
+# <b>xxx</b>
+def parser_b_block(block):
+    left = re.sub(r'<b(.*?)>', '', block)
+    b_content = re.sub(r'</b>', '', left)
+    return '**' + get_tag_text(b_content).strip() + '** '
+
+
+# 解析 b block
+def parser_b(element=""):
+    if is_has_child(element):
+        remove_wrap = remove_parent_wrap(element)
+        tag_name = get_tag_name(remove_wrap)
+        if tag_name == 'code':
+            return "**" + parser_code(remove_wrap, whitespace=" ").strip() + '** '
+        else:
+            raise RuntimeError('意外的类型，需要调整源码')
+    return parser_b_block(element)
+
+
+# 解析 img
+
+def parser_img(block):
+    src = get_src(block)
+    alt = get_alt(block)
+    return '![' + alt + '](' + src + ')'
+
+
+# 解析，p block，默认块
+def parser_p(block):
+    new_html = block
+    # 移除最外面的p标签
+    if get_tag_name(block) == 'p':
+        new_html = remove_parent_wrap(block)
+    ret = check_what_element(element=new_html)
+    return '\n' + ret + '\n'
 
 
 # 判断是哪种标签开头，但不完全是包围的，todo，此时先判断code
 # todo 流水线处理
 def check_what_element(element=""):
-    clear_attrs_element = remove_attrs(element)
-    element=Pip(clear_attrs_element).factory()
+    clear_attrs_element = element
+    if not get_tag_name(element) == 'a':
+        clear_attrs_element = remove_attrs(element)
+    element = Pip(clear_attrs_element).factory()
     return element
-

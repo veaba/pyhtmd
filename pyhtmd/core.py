@@ -4,13 +4,17 @@
 # html to markdown
 
 import re
-from .utils import is_li, is_head,is_img, is_pre, get_tag_text, is_has_child,remove_attrs,remove_new_line
-from .html_parser import parser_li, parser_head, parser_pre, parser_p,parser_img
+from .utils import is_li, is_head, is_img, is_pre, is_quote, remove_attrs, remove_new_line
+from .html_parser import parser_li, parser_head, parser_pre, parser_p, parser_img, parser_quote
 
 
 class Pyhtmd:
-    def __init__(self, html=""):
+    def __init__(self, html="", language="", img=True):
+        # print('原始标签：', html)
+        # todo 需要检测是合法的HTML标签
         self.html = remove_new_line(html)
+        self.language = language
+        self.img = img
         # 错误处理
         if not isinstance(self.html, str):
             raise RuntimeError('The params is no str type')
@@ -24,20 +28,28 @@ class Pyhtmd:
 
     # todo 解析出来markdown
     def markdown(self):
-        text=""
         if is_li(self.html):
-            text = parser_li(self.html)
+            # print('is_li')
+            return parser_li(self.html)
         # 导致递归移除，但看起来没有什么啊
-        if is_head(self.html):
-            text = parser_head(remove_attrs(self.html))
+        elif is_head(self.html):
+            # print('is_head')
+            return parser_head(remove_attrs(self.html))
         elif is_pre(self.html):
-            text = parser_pre(self.html)
+            return parser_pre(element=self.html, language=self.language)
         elif is_img(self.html):
-            text = parser_img(self.html)
-        else:
-            # 此时就应该清空span标签
+            if self.img:
+                return parser_img(self.html)
+            return self.html
+        elif is_quote(self.html):
+            # print('引用部分：', self.html)
             clear_block = self.__clean_up_tag(self, block=self.html)
-            text = parser_p(clear_block)
-        return text
+            return parser_quote(clear_block)
+        else:
+            # print('other tag')
+            # 此时就应该清空span标签
+            other_block = self.__clean_up_tag(self, block=self.html)
+            return parser_p(other_block)
+
     def get(self):
         return self.html
