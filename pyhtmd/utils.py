@@ -152,7 +152,7 @@ def remove_br(block):
 
 # 移除attrs
 def remove_attrs(block):
-    # print('移除attrs入参：', block)
+    print('移除attrs入参：', block)
     content = block
     normal_tags = []  # 如果是空数组，则原样返回
     for item in HTML_TAGS:
@@ -173,18 +173,17 @@ def remove_attrs(block):
     remove_a = remove_button
     remove_a_attrs = re.search(r'<a(.*?)></a>', remove_button)
     if remove_a_attrs:
-        remove_a_attrs = remove_a_attrs.group()
-        if not is_has_child(remove_a_attrs):
+        remove_a_attrs_text = remove_a_attrs.group()
+        if not is_has_child(remove_a_attrs_text):
             remove_a = re.sub(r'<a(.*?)></a>', '', remove_button)  # 需要保留src 和href 属性
         else:
             return remove_button
-    elif remove_a_attrs:
-        return block
+    print('remove_a:', remove_a)
     remove_b = re.sub(r'<b(.*?)">', '<b>', remove_a)
     remove_div = re.sub(r'<div(.*?)">', '<div>', remove_b)
     # 移除标签，如果内容不存在的话移除,针对无意义button、a标签。比如<h2>Modules<button></button><a></a></h2>  => <h2>Modules</h2>
     ret = re.sub(r'(<button></button>|<a></a>)', '', remove_div)
-    # print('移除attrs结果：', ret)
+    print('移除attrs结果：', ret)
     return ret
 
 
@@ -203,15 +202,19 @@ def get_tag_text(block):
 # 获取标签名，必须是干净标签，已移除attrs
 # <code>xxx </code>  ===》 code
 # <a href="https://baidu.com">baidu.com </a>  ===> a
+# <h2>Class <code>DeviceSpec</code></h2>
 
 def get_tag_name(block):
-    # print('获得标签名入参：', block)
+    print('获得标签名入参：', block)
     match_tag = re.match(r'<(.*?)>', block)
     if match_tag:
         # 如果存在 类似 <a href="https://baidu.com">
         tag_string = match_tag.group()
-        if tag_string.isspace():
-            return re.sub(r'<(.*?)>', '\\1', tag_string)
+        # 存在空格
+        if ' ' in tag_string:
+            exist_tag = re.sub(r'<(.*?) .*$', '\\1', tag_string)
+            print('获得标签名出参：', exist_tag)
+            return exist_tag
     last_tag_name = re.sub(r'<(.*?)>.*$', '\\1', block, count=1)
-    # print("获得标签名出参：", last_tag_name)
+    print("获得标签名出参：", last_tag_name)
     return last_tag_name

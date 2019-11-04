@@ -1,6 +1,7 @@
 # todo table
 from pyhtmd.core import Pyhtmd
 from pyhtmd.utils import remove_attrs,get_tag_name
+from pyhtmd.html_parser import Pip
 
 # from pyhtmd.core import Pyhtmd
 
@@ -11,7 +12,9 @@ array = [
     # '<p><a href="https://tensorflow.google.cn/api_docs/python/tf/audio"><code translate="no" dir="ltr">audio</code></a> module: Public API for tf.audio namespace.</p>',
     # '<h1>I am H1 tag </h1>',
     # '<h2>I am H2 tag </h2>',
-    '<h2>Modules</h2>',
+    # '<h2>Modules</h2>',
+    '<h2 id="class_devicespec" is-upgraded="">Class <code translate="no" dir="ltr">DeviceSpec</code></h2>',
+    # '<h2><a href="x22">222</a>aaaaa</h2>'
     # '<h2 id="modules" is-upgraded="">Modules<button role="button" class="devsite-heading-link button-flat material-icons" data-title="Copy link to this section"></button><a href="#top_of_page" class="devsite-back-to-top-link material-icons" data-title="返回页首"></a></h2>',
     # '<h3>I am H3 tag </h3>',
     # '<h4>I am H4 tag </h4>',
@@ -65,7 +68,9 @@ array = [
 ]
 
 for item in array:
+    # mk = Pip(item).factory()
     mk = Pyhtmd(item).markdown()
+    
     print('===========================')
     print(mk)
     # x =get_tag_name(item)

@@ -111,7 +111,9 @@ def parser_pre_block(block, language=""):
 
     clear_up_content = clean_up(clear_wrap_pre)  # 有问题！
     content_remove_code = get_tag_text(clear_up_content)
-    return '\n```' + language + '\n' + content_remove_code + '\n```\n'
+    # print('content_remove_code:',content_remove_code)
+    remove_nbsp_content = content_remove_code.replace('&nbsp; &nbsp; ', '  ')
+    return '\n```' + language + '\n' + remove_nbsp_content + '\n```\n'
 
 
 # bug  len(tuple(html_elements))会中断迭代循环
@@ -133,10 +135,14 @@ def parser_pre(element="", language=""):
 # h1-h6 todo 可能还有其他子标签
 def parser_head(block):
     text = block
+    print('parser_head:', block)
     tag_name = get_tag_name(block)
+    print(22, tag_name)
     if is_has_child(block):
+        # 产生递归
         clear_content = clean_up(block)
-        return parser_head(clear_content)
+        head_content = Pip(clear_content).factory()
+        return parser_head(head_content)
     else:
         if tag_name == 'h1':
             text = '\n# ' + get_tag_text(text) + '\n'
