@@ -19,16 +19,15 @@ HTML_TAGS = [
 
 # 判断是否li开头的标签
 def is_li(block):
-    if re.match(r'^.*<li>', block):
+    if re.match(r'^<li', block):
         return True
     else:
         return False
 
 
-# 判断是否是code标签
-
+# 判断是否是code标签,<code开头
 def is_code(block):
-    if re.match(r'^.*<code>', block):
+    if re.match(r'^<code', block):
         return True
     else:
         return False
@@ -37,23 +36,23 @@ def is_code(block):
 # 判断h1-h6
 
 def is_head(block):
-    if re.match(r'^.*\<([h1|h2|h3|h4|h5|h6])', block):
+    if re.match(r'^<h([1-6])', block):
         return True
     else:
         return False
 
 
-# 判断是image标签
+# 判断是image标签，即<img开头
 def is_img(block):
-    if re.match(r'^.*\<img', block):
+    if re.match(r'^<img', block):
         return True
     else:
         return False
 
 
-# 判断是pre code 代码的标签
+# 判断是pre code 代码的标签,pre开头
 def is_pre(block):
-    if re.match(r'^.*\<pre', block):
+    if re.match(r'^<pre', block):
         return True
     else:
         return False
@@ -61,7 +60,7 @@ def is_pre(block):
 
 # 判断是Quote，引用
 def is_quote(block):
-    if re.match(r'^.*<blockquote', block):
+    if re.match(r'^<blockquote', block):
         return True
     else:
         return False
@@ -140,9 +139,24 @@ def remove_parent_wrap(block):
     return right
 
 
+# 初始化标签
 # 移除换行符
-def remove_new_line(block=""):
-    return block.replace('\n', '')
+# 移除script标签
+def init_html(block=""):
+    # print('初始化入参：', block)
+    block = block.replace('\n', '')
+    block = re.sub(r'<script(.*?)</script>', '', block)
+    block = re.sub(r'<math(.*?)</math>', '', block)
+    block = re.sub(r'(<name(.*?)>)|(</name>)', '', block)  # 有些页面会出在<name>比如：https://tensorflow.google.cn/api_docs
+    # /python/tf/DeviceSpec
+    block = re.sub(r'(<id(.*?)>)|(</id>)', '', block)
+    block = re.sub(r'(<device_type(.*?)>)|(</device_type>)', '', block)
+    block = re.sub(r'(<devsite-code(.*?)>)|(</devsite-code>)', '', block)
+    # 转换特殊字符,todo，后续可能有其他特殊字符，这里需要继续补充
+    block = block.replace('&gt;', '>')
+    block = block.replace('&lt;', '<')
+    # print('初始化结果:', block)
+    return block
 
 
 # 移除br
@@ -152,7 +166,7 @@ def remove_br(block):
 
 # 移除attrs
 def remove_attrs(block):
-    print('移除attrs入参：', block)
+    # print('移除attrs入参：', block)
     content = block
     normal_tags = []  # 如果是空数组，则原样返回
     for item in HTML_TAGS:
@@ -168,8 +182,8 @@ def remove_attrs(block):
     remove_h6 = re.sub(r'<h6(.*?)">', '<h6>', remove_h5)
     remove_pre = re.sub(r'<pre(.*?)">', '<pre>', remove_h6)
     remove_code = re.sub(r'<code(.*?)">', '<code>', remove_pre)
-    remove_span = re.sub(r'<span(.*?)">', '<span>', remove_code)
-    remove_button = re.sub(r'<button(.*?)">', '<button>', remove_span)
+    remove_span_attr = re.sub(r'<span(.*?)">', '<span>', remove_code)
+    remove_button = re.sub(r'<button(.*?)">', '<button>', remove_span_attr)
     remove_a = remove_button
     remove_a_attrs = re.search(r'<a(.*?)></a>', remove_button)
     if remove_a_attrs:
@@ -183,8 +197,18 @@ def remove_attrs(block):
     remove_div = re.sub(r'<div(.*?)">', '<div>', remove_b)
     # 移除标签，如果内容不存在的话移除,针对无意义button、a标签。比如<h2>Modules<button></button><a></a></h2>  => <h2>Modules</h2>
     ret = re.sub(r'(<button></button>|<a></a>)', '', remove_div)
-    print('移除attrs结果：', ret)
+    # print('移除attrs结果：', ret)
     return ret
+
+
+# 移除span标签
+def remove_span(block):
+    return re.sub(r'(<span(.*?)>)|(</span>)', '', block)
+
+
+# 移除标签
+def remove_p(block):
+    return re.sub(r'(<p(.*?)>)|(</p>)', '', block)
 
 
 # 移除父级标签直接获取内容
@@ -192,11 +216,10 @@ def remove_attrs(block):
 
 def get_tag_text(block):
     block = remove_br(block)
-    # print('获取内容，get_tag_text:\n', block)
-    if not is_has_child(block):
-        return remove_parent_wrap(block)
-    else:
+    print('获取内容，get_tag_text:\n', block)
+    if is_has_child(block):
         return get_tag_text(remove_parent_wrap(block))
+    return block
 
 
 # 获取标签名，必须是干净标签，已移除attrs

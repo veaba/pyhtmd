@@ -15,7 +15,7 @@ with open('README.md','r',encoding='UTF-8') as f:
     loog_description=f.read()
 setup(
     name="pyhtmd",
-    version="0.1.1",
+    version="0.1.3",
     keywords=("html", 'markdown', "parser", "pyhtmd"),
     description="A Python HTML to Markdown parser",
     long_description=loog_description,

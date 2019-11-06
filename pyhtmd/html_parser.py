@@ -1,21 +1,23 @@
 # 解析器
 import re
+# remove_attrs, \
 from .utils import remove_parent_wrap, \
-    remove_attrs, \
+    remove_span, \
+    remove_p, \
     is_has_child, \
     get_tag_text, \
     get_tag_name, \
     get_href, \
     get_src, get_alt, clean_up
 
-# ***************************解析部分************************ #
-# 将获取被包围的node节点解析成为数组
-# Given a tensor <code translate="no" dir="ltr">t<\/code>, this operation returns a tensor of the same type  andshape as <code translate="no" dir="ltr">t<\/code> with its values clipped to <code translate="no"
-# dir="ltr">clip_value_min<\/code> and <code translate="no" dir="ltr">clip_value_max</code>.Any values less than
-# <code translate="no" parser_bdir="ltr">clip_value_min</code> are set to <code translate="no"
-# dir="ltr">clip_value_min</code>. Any valuesgreater than <code translate="no" dir="ltr">clip_value_max</code> are
-# set to <code translate="no" dir="ltr">clip_value_max</code>.
-# ===> re.finditer(r'<(.*?)(>)(.*?)(<\/(.*?)>)', h)
+# ***************************解析部分************************
+# 将获取被包围的node节点解析成为数组 Given a tensor <code translate="no"
+# dir="ltr">t<\/code>, this operation returns a tensor of the same type  andshape as <code translate="no"
+# dir="ltr">t<\/code> with its values clipped to <code translate="no" dir="ltr">clip_value_min<\/code> and <code
+# translate="no" dir="ltr">clip_value_max</code>.Any values less than <code translate="no"
+# parser_bdir="ltr">clip_value_min</code> are set to <code translate="no" dir="ltr">clip_value_min</code>. Any
+# valuesgreater than <code translate="no" dir="ltr">clip_value_max</code> are set to <code translate="no"
+# dir="ltr">clip_value_max</code>. ===> re.finditer(r'<(.*?)(>)(.*?)(<\/(.*?)>)', h)
 """
 <code translate="no" dir="ltr">t</code>
 <code translate="no" dir="ltr">t</code>
@@ -39,6 +41,7 @@ class Pip:
         block_content = self.__p_pip(self, block_content)
         block_content = self.__b_pip(self, block_content)
         block_content = self.__strong_pip(self, block_content)
+        block_content = self.__img_pip(self, block_content)
         block_content = self.__code_pip(self, block_content)
         return block_content
 
@@ -74,10 +77,18 @@ class Pip:
         return block_content
 
     @staticmethod
+    def __img_pip(self, block):
+        img_content = block
+        img_blocks = re.finditer(r'<img(.*?)>', block)
+        for item in img_blocks:
+            content = item.group()
+            img_content = img_content.replace(content, parser_img(content))
+        return img_content
+
+    @staticmethod
     def __code_pip(self, block):
         code_content = block
         code_blocks = re.finditer(r'<code(.*?)</code>', block)
-        # todo 先处理b标签
         for item in code_blocks:
             content = item.group()
             code_content = code_content.replace(content, parser_code(content))
@@ -86,17 +97,36 @@ class Pip:
 
 # 解析 li 标签
 # todo 可能还有其他子标签
-def parser_li(block):
-    temp_array = re.finditer(r'\<li\>(.*?)\<\/li\>', block)
+# 需要首位的位置
+# todo 需要处理ol标签
+def parser_li(block, dep='\n- '):
     text = ''
+    if 'ul' in block:
+        ul_array = re.finditer(r'<ul(.*?)</ul>',block)
+        for ul in ul_array:
+            ul_text = ul.group()
+            print('ul_text:', ul_text)
+
+    return text
+
+
+# 解析ul
+def parser_ul(block, dep='\n- '):
+    temp_array = re.finditer(r'<li>(.*?)</li>', block)
+    text = ''
+    # 如果 存在ul
     for ele in temp_array:
+        ele_text = ele.group()
+        print('正则分组：', ele_text)
         # 判断不存在包围子元素
-        if not is_has_child(ele.group()):
-            text = '\n- ' + get_tag_text(block)
+        if not is_has_child(ele_text):
+            text += '\n- ' + get_tag_text(ele_text)
         # 如果存在子元素
         else:
-            remove_li_tag = remove_parent_wrap(ele.group())
-            text += '\n- ' + check_what_element(element=remove_li_tag) + '\n'
+            remove_li_tag = remove_parent_wrap(ele_text)
+            text += dep + check_what_element(element=remove_li_tag) + '\n'
+    text = remove_p(text)
+
     return text
 
 
@@ -112,7 +142,7 @@ def parser_pre_block(block, language=""):
     clear_up_content = clean_up(clear_wrap_pre)  # 有问题！
     content_remove_code = get_tag_text(clear_up_content)
     # print('content_remove_code:',content_remove_code)
-    remove_nbsp_content = content_remove_code.replace('&nbsp; &nbsp; ', '  ')
+    remove_nbsp_content = content_remove_code.replace('&nbsp;', ' ')
     return '\n```' + language + '\n' + remove_nbsp_content + '\n```\n'
 
 
@@ -137,7 +167,6 @@ def parser_head(block):
     text = block
     print('parser_head:', block)
     tag_name = get_tag_name(block)
-    print(22, tag_name)
     if is_has_child(block):
         # 产生递归
         clear_content = clean_up(block)
@@ -231,15 +260,16 @@ def parser_p(block):
     # 移除最外面的p标签
     if get_tag_name(block) == 'p':
         new_html = remove_parent_wrap(block)
+    new_html = remove_span(new_html)
     ret = check_what_element(element=new_html)
     return '\n' + ret + '\n'
 
 
-# 判断是哪种标签开头，但不完全是包围的，todo，此时先判断code
-# todo 流水线处理
+# 判断是哪种标签开头，但不完全是包围的
+# 流水线处理
 def check_what_element(element=""):
     clear_attrs_element = element
-    if not get_tag_name(element) == 'a':
-        clear_attrs_element = remove_attrs(element)
+    # if not get_tag_name(element) == 'a':
+    #     clear_attrs_element = remove_attrs(element)
     element = Pip(clear_attrs_element).factory()
     return element

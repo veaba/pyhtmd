@@ -1,6 +1,6 @@
 # todo table
 from pyhtmd.core import Pyhtmd
-from pyhtmd.utils import remove_attrs,get_tag_name
+from pyhtmd.utils import remove_attrs, get_tag_name
 from pyhtmd.html_parser import Pip
 
 # from pyhtmd.core import Pyhtmd
@@ -13,7 +13,7 @@ array = [
     # '<h1>I am H1 tag </h1>',
     # '<h2>I am H2 tag </h2>',
     # '<h2>Modules</h2>',
-    '<h2 id="class_devicespec" is-upgraded="">Class <code translate="no" dir="ltr">DeviceSpec</code></h2>',
+    # '<h2 id="class_devicespec" is-upgraded="">Class <code translate="no" dir="ltr">DeviceSpec</code></h2>',
     # '<h2><a href="x22">222</a>aaaaa</h2>'
     # '<h2 id="modules" is-upgraded="">Modules<button role="button" class="devsite-heading-link button-flat material-icons" data-title="Copy link to this section"></button><a href="#top_of_page" class="devsite-back-to-top-link material-icons" data-title="返回页首"></a></h2>',
     # '<h3>I am H3 tag </h3>',
@@ -65,12 +65,52 @@ array = [
     # '<h2 id="modules" isupgraded="">Modules<button role="button" class="devsite-heading-link button-flat ',
     # 'material-icons" title="Copy link to this section"></button><a href="#top_of_page" class="devsite-back-to-top-link ',
     # 'material-icons" title="返回页首"></a></h2> '
+    # '<a href="https://tensorflow.google.cn/api_docs/python/tf/math/exp"><code translate="no" dir="ltr">exp('
+    # '...)</code></a>: Computes exponential of x element-wise.  <span class="MathJax_Preview" style="color: '
+    # 'inherit;"></span><span class="MathJax_SVG" id="MathJax-Element-1-Frame" tabindex="0" data-mathml="<math '
+    # 'xmlns=&quot;http://www.w3.org/1998/Math/MathML&quot;><mi>y</mi><mo>=</mo><msup><mi>e</mi><mi>x</mi></msup></math'
+    # '>" role="presentation" style="font-size: 100%; display: inline-block; position: relative;"><img '
+    # 'src="Overview.md_0.png"><span class="MJX_Assistive_MathML" role="presentation"><math '
+    # 'xmlns="http://www.w3.org/1998/Math/MathML"><mi>y</mi><mo>=</mo><msup><mi>e</mi><mi>x</mi></msup></math></span'
+    # '></span><script type="math/tex" id="MathJax-Element-1">y = e^x</script>. ',
+    # '<li><p>whahaww <a href="xxx"><code>cococoococo</code></a></p></li>',
+    # '<li><p><code translate="no" dir="ltr">EXPERIMENTAL_ACCUMULATE_N</code>: Gradient terms are summed using the '
+    # '"AccumulateN" op (see <code translate="no" dir="ltr">tf.accumulate_n</code>), which accumulates theoverall sum '
+    # 'in a single buffer that is shared across threads. This method of summing gradients can result in a lower memory '
+    # 'footprint and lower latency at the expense of higher CPU/GPU utilization.For gradients of types that '
+    # '"AccumulateN" does not support, this summation method falls back on the behavior of <code translate="no" '
+    # 'dir="ltr">EXPERIMENTAL_TREE</code></p></li> ',
+    # '<devsite-code><pre class="" translate="no" dir="ltr" is-upgraded=""><code dir="ltr"><span class="com"># my_spec '
+    # 'and my_updated_spec are unrelated.</span><span class="pln"><br>my_spec </span><span class="pun">=</span><span '
+    # 'class="pln"> tf</span><span class="pun">.</span><span class="typ">DeviceSpec</span><span '
+    # 'class="pun">.</span><span class="pln">from_string</span><span class="pun">(</span><span '
+    # 'class="str">"/CPU:0"</span><span class="pun">)</span><span class="pln"><br>my_updated_spec </span><span '
+    # 'class="pun">=</span><span class="pln"> tf</span><span class="pun">.</span><span '
+    # 'class="typ">DeviceSpec</span><span class="pun">.</span><span class="pln">from_string</span><span class="pun">('
+    # '</span><span class="str">"/GPU:0"</span><span class="pun">)</span><span class="pln"><br></span><span '
+    # 'class="kwd">with</span><span class="pln"> tf</span><span class="pun">.</span><span '
+    # 'class="pln">device</span><span class="pun">(</span><span class="pln">my_updated_spec</span><span '
+    # 'class="pun">):</span><span class="pln"><br>&nbsp; </span><span class="pun">...</span><span '
+    # 'class="pln"><br></span></code></pre><div class="devsite-code-buttons-container"><button '
+    # 'class="gc-analytics-event material-icons devsite-icon-code-dark devsite-toggle-dark" data-category="Site-Wide '
+    # 'Custom Events" data-label="Dark Code Toggle" track-type="exampleCode" track-name="darkCodeToggle" '
+    # 'data-title="Dark code theme"></button><button class="gc-analytics-event material-icons devsite-icon-code-light '
+    # 'devsite-toggle-light" data-category="Site-Wide Custom Events" data-label="Light Code Toggle" '
+    # 'track-type="exampleCode" track-name="lightCodeToggle" data-title="Light code theme"></button><button '
+    # 'class="gc-analytics-event material-icons devsite-icon-copy" data-category="Site-Wide Custom Events" '
+    # 'data-label="Click To Copy" track-type="exampleCode" track-name="clickToCopy" '
+    # 'data-title="Copy"></button></div></devsite-code> ',
+    # '<li>Job: The job name.</li><li>Replica: The replica index.</li><li>Task: The task index.</li><li>Device type: The device type string (e.g. "CPU" or "GPU").</li><li>Device index: The device index.</li>',
+    # '<li>11111 <ul><li>2222</li>3333<li>444</li></ul></li>',
+    '<li>11111<ul><li>222</li><ul><li>4444</li></ul></ul></li>',
+    # '<li>aaaaa</li><li>bbbbb</li><li>ccccc</li><li>ddddd</li><li>eeeee</li> \
+    # <li>ffff</li><li>gggg</li><li>hhhhh</li><li>jjjjj</li>v',
+    # '<ol><li>1111</li>2222<li></li></ol>'
 ]
 
 for item in array:
     # mk = Pip(item).factory()
     mk = Pyhtmd(item).markdown()
-    
     print('===========================')
     print(mk)
     # x =get_tag_name(item)
