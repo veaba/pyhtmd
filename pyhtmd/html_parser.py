@@ -99,19 +99,16 @@ class Pip:
 # todo 可能还有其他子标签
 # 需要首位的位置
 # todo 需要处理ol标签
-def parser_li(block, dep='\n- '):
-    text = ''
-    if 'ul' in block:
-        ul_array = re.finditer(r'<ul(.*?)</ul>',block)
-        for ul in ul_array:
-            ul_text = ul.group()
-            print('ul_text:', ul_text)
+def parser_li(block, ):
+    # <li>11111<ul><li>222</li><ul><li>4444</li></ul></ul></li>
+    # 
+    print(block)
 
-    return text
+    return block
 
 
 # 解析ul
-def parser_ul(block, dep='\n- '):
+def parser_ul(block):
     temp_array = re.finditer(r'<li>(.*?)</li>', block)
     text = ''
     # 如果 存在ul
@@ -122,9 +119,6 @@ def parser_ul(block, dep='\n- '):
         if not is_has_child(ele_text):
             text += '\n- ' + get_tag_text(ele_text)
         # 如果存在子元素
-        else:
-            remove_li_tag = remove_parent_wrap(ele_text)
-            text += dep + check_what_element(element=remove_li_tag) + '\n'
     text = remove_p(text)
 
     return text

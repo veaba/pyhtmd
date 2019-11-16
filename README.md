@@ -1,4 +1,6 @@
-# 一款Python版本的HTML转markdown解析器，不使用任何第三方工具
+# 一款Python版本的HTML转markdown解析器，不使用任何第三方工，实验demo
+
+请勿使用于生成环境，这个只是一次尝试demo项目
 
 ## install 
 

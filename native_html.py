@@ -1,18 +1,21 @@
-from html.parser import HTMLParser
+from src_html_parser import HTMLParser
 
 
 class HTML(HTMLParser):
-    def handle_starttag(self,tag,attrs):
+    def handle_starttag(self, tag, attrs):
+        # print('start:', tag, attrs)
         pass
-        # print('start:',tag,attrs)
-    def handle_endtag(self,tag):
-        pass
-        # print('end:',tag)
-    def handle_data(self,data):
-        pass
-        # print('data:',data)
 
-content="""
+    def handle_endtag(self, tag):
+        # print('end:', tag)
+        pass
+
+    def handle_data(self, data):
+        # print('data:', data)
+        pass
+
+
+content = """
 
               
 <style>/* override theme */
@@ -303,7 +306,9 @@ a stable order, pass <code translate="no" dir="ltr">stable=True</code> for forwa
 
 <ul><li><b><code translate="no" dir="ltr">ValueError</code></b>: If axis is not a constant scalar, or the direction is invalid.</li></ul>'
 """
-h=HTML()
+h = HTML()
+content=content.strip()
+content=content.replace('\n','')
 h.feed(content)
 
 print(dir(h))
