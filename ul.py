@@ -5,7 +5,7 @@ block = '<ul class="c545"><li class="dsad">111</li><li>222</li><li>333<ul><li>11
 # 清空ul li attrs
 block = re.sub(r'<ul(.*?)>', '<ul>', block)
 block = re.sub(r'<li(.*?)>', '<li>', block)
-print('ret:', block)
+# print('ret:', block)
 
 # 获取在字符串中的索引值
 ul_array = []
@@ -55,7 +55,6 @@ def get_index(init=False):
     if init:
         del left_ul_index[0:]
         del right_ul_index[0:]
-    print(999, ul_array)
     for item in enumerate(ul_array):
         if item[1] == '<ul>' or item[1] == '<ol>':
             left_ul_index.append(item[0])
@@ -77,7 +76,7 @@ def get_level(init=False):
         del left_ul_level[0:]
     for item in enumerate(left_ul_index):
         left_ul_level.append(item[0] * 2 - item[1] + 1)
-    print('第4步,获取level：', left_ul_level)
+    # print('第4步,获取level：', left_ul_level)
 
 
 get_level()
@@ -99,36 +98,40 @@ def is_ol(string):
 
 # todo
 def parser_ul(node, level):
-    print('node：', node)
-    print('level：', level)
+    li_count = node.count('<li>')
+    for index in range(li_count):
+        node = re.sub(r'<li>', '    ' * level + '- ', node, count=1)
+    node = re.sub(r'</li>', '\n', node)
+    node = re.sub(r'<ul>', '', node)
+    node = re.sub(r'</ul>', '', node)
+    return node
 
 
 # todo parser ol
 def parser_ol(node, level):
-    print('node：', node)
-    print('level：', level)
+    li_count = node.count('<li>')
+    for index in range(li_count):
+        node = re.sub(r'<li>', '    ' * level + str(index + 1) + '. ', node, count=1)
+    node = re.sub(r'</li>', '\n', node)
+    node = re.sub(r'<ol>', '', node)
+    node = re.sub(r'</ol>', '', node)
+    return node
 
 
 # 替换,此时left_ul_level和left_ul_index长度是一致的
 for i in range(len(left_ul_start) - 1, -1, -1):
-    # print(left_ul_index, i)
-    # 当前level
     current_level = left_ul_level[i]
     left_index = left_ul_index[i]
     # 核心算法二：提取<ul><ol>对应</ul></ol>的索引值
     temp_right_array = [k for k in temp_right_ul_index_array if k > left_index]
     right_index = temp_right_array[0]
-    # print('left:right=>', left_index, right_index)
-    # 去更改temp_right_ul_index_array数组
     temp_right_ul_index_array.remove(right_index)
     # 字符开始处
     start_index = ul_span[left_index][0]
     end_index = ul_span[right_index][1]
     # 当前节点的字符串
     current_node = block[start_index:end_index]
-    # print('截取的字符串：', current_node)
     block = block[0:start_index] + block[end_index:]
-    # print('block:', block)
     get_ul_tuple(init=True)
     get_tag_name(init=True)
     get_index(init=True)
@@ -136,9 +139,10 @@ for i in range(len(left_ul_start) - 1, -1, -1):
 
     # todo 解析ol
     if is_ol(current_node):
-        parser_ol(current_node, current_level)
+        content = content + parser_ol(current_node, current_level)
 
     # todo 解析ul
     if is_ul(current_node):
-        parser_ul(current_node, current_level)
-    # temp_split_str =
+        content = parser_ul(current_node, current_level) + content
+
+print(content)

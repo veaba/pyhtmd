@@ -141,38 +141,8 @@ A = tf.constant([[1, 20, 13], [3, 21, 13]])B = tf.clip_by_value(A, clip_value_mi
   ![百度logo](https://www.baidu.com/img/bd_logo1.png)
 
 
-  ## 吐槽
-
- 这正则会引发： maximum recursion depth exceeded in comparison
- 什么毛病，其他就没有！！！！
- 问题：由于一个正则替换引发的无限递归
-  ```python
-  def remove_attrs(block):
-    content=block
-    # remove_h1 = re.sub(r'<h1(.*?)">', '<h1>', content)
-    # remove_h2 = re.sub(r'<h2(.*?)">', '<h2>', remove_h1)
-    # remove_h3 = re.sub(r'<h3(.*?)">', '<h3>', remove_h2)
-    # remove_h4 = re.sub(r'<h4(.*?)">', '<h4>', remove_h3)
-    # remove_h5 = re.sub(r'<h5(.*?)">', '<h5>', remove_h4)
-    # remove_h6 = re.sub(r'<h6(.*?)">', '<h6>', remove_h5)
-    # remove_code = re.sub(r'<code(.*?)">', '<code>', remove_h6)
-    # remove_span = re.sub(r'<span(.*?)">', '<span>', remove_code)
-    remove_b = re.sub(r'<b(.*?)">', '<b>', content)
-    # remove_button = re.sub(r'<button(.*?)">', '<button>', content) # 这个就没报错，很奇怪
-    # remove_div = re.sub(r'<div(.*?)">', '<div>', content)
-    # remove_a = re.sub(r'<a(.*?)">', '<a>', remove_div)
-    return remove_b
-
-# todo table
-import re
-from pyhtmd.core import Pyhtmd
-array=[
-'<h3 id="aliases" is-upgraded="">Aliases:<button role="button" class="devsite-heading-link button-flat material-icons" title="Copy link to this section"></button></h3>'
-]
-for item in array:
-    mk=Pyhtmd(item).markdown()
-    print('===========================')
-    print(mk)
-    print('===========================')
-
-  ```
+## 
+    1 
+        - 1
+            1.
+        -  
