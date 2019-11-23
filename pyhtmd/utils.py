@@ -24,6 +24,7 @@ def is_li(block):
     else:
         return False
 
+
 # 判断是否是code标签,<code开头
 def is_code(block):
     if re.match(r'^<code', block):
@@ -137,13 +138,16 @@ def remove_parent_wrap(block):
     right = re.sub(r'<\/*\/([^\/]+[^\.])$', '', left)
     return right
 
+
 # 获取list将
 '''
 - 过滤字符，只剩下<ul></ul><ol></ol>
 '''
 
+
 def get_li_wrap(block):
     return block
+
 
 # 初始化标签
 # 移除换行符
