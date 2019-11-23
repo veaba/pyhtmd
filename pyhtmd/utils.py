@@ -25,6 +25,22 @@ def is_li(block):
         return False
 
 
+# 判断ul开头标签
+def is_ul(block):
+    if re.match(r'^<ul', block):
+        return True
+    else:
+        return False
+
+
+# 判断ol开头标签
+def is_ol(block):
+    if re.match(r'^<ol', block):
+        return True
+    else:
+        return False
+
+
 # 判断是否是code标签,<code开头
 def is_code(block):
     if re.match(r'^<code', block):
@@ -202,7 +218,6 @@ def remove_attrs(block):
             remove_a = re.sub(r'<a(.*?)></a>', '', remove_button)  # 需要保留src 和href 属性
         else:
             return remove_button
-    print('remove_a:', remove_a)
     remove_b = re.sub(r'<b(.*?)">', '<b>', remove_a)
     remove_div = re.sub(r'<div(.*?)">', '<div>', remove_b)
     # 移除标签，如果内容不存在的话移除,针对无意义button、a标签。比如<h2>Modules<button></button><a></a></h2>  => <h2>Modules</h2>
@@ -226,10 +241,9 @@ def remove_p(block):
 
 def get_tag_text(block):
     block = remove_br(block)
-    print('获取内容，get_tag_text:\n', block)
     if is_has_child(block):
         return get_tag_text(remove_parent_wrap(block))
-    return block
+    return remove_parent_wrap(block)
 
 
 # 获取标签名，必须是干净标签，已移除attrs
@@ -238,7 +252,6 @@ def get_tag_text(block):
 # <h2>Class <code>DeviceSpec</code></h2>
 
 def get_tag_name(block):
-    print('获得标签名入参：', block)
     match_tag = re.match(r'<(.*?)>', block)
     if match_tag:
         # 如果存在 类似 <a href="https://baidu.com">
@@ -246,8 +259,6 @@ def get_tag_name(block):
         # 存在空格
         if ' ' in tag_string:
             exist_tag = re.sub(r'<(.*?) .*$', '\\1', tag_string)
-            print('获得标签名出参：', exist_tag)
             return exist_tag
     last_tag_name = re.sub(r'<(.*?)>.*$', '\\1', block, count=1)
-    print("获得标签名出参：", last_tag_name)
     return last_tag_name

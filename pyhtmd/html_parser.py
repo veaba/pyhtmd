@@ -8,7 +8,9 @@ from .utils import remove_parent_wrap, \
     get_tag_text, \
     get_tag_name, \
     get_href, \
-    get_src, get_alt, clean_up
+    get_src, get_alt, clean_up, \
+    is_ol, \
+    is_ul
 
 # ***************************解析部分************************
 # 将获取被包围的node节点解析成为数组 Given a tensor <code translate="no"
@@ -99,29 +101,139 @@ class Pip:
 # todo 可能还有其他子标签
 # 需要首位的位置
 # todo 需要处理ol标签
-def parser_li(block, ):
-    # <li>11111<ul><li>222</li><ul><li>4444</li></ul></ul></li>
-    # 
-    print(block)
-
-    return block+'222'
+def parser_li(block):
+    # print('li：', block)
+    return block
 
 
 # 解析ul
 def parser_ul(block):
-    temp_array = re.finditer(r'<li>(.*?)</li>', block)
-    text = ''
-    # 如果 存在ul
-    for ele in temp_array:
-        ele_text = ele.group()
-        print('正则分组：', ele_text)
-        # 判断不存在包围子元素
-        if not is_has_child(ele_text):
-            text += '\n- ' + get_tag_text(ele_text)
-        # 如果存在子元素
-    text = remove_p(text)
+    # print('ul:', block)
+    return parser_list(block)
 
-    return text
+
+# 解析ol
+def parser_ol(block):
+    # print('ol:', block)
+    return parser_list(block)
+
+
+# 纯ul标签
+def parser_ul_block(node, level):
+    for index in range(node.count('<li>')):
+        node = re.sub(r'<li>', '    ' * level + '- ', node, count=1)
+    node = re.sub(r'</li>', '\n', node)
+    node = re.sub(r'<ul>', '', node)
+    node = re.sub(r'</ul>', '', node)
+    return node
+
+
+# 纯ol标签
+def parser_ol_block(node, level):
+    for index in range(node.count('<li>')):
+        node = re.sub(r'<li>', '    ' * level + str(index + 1) + '. ', node, count=1)
+    node = re.sub(r'</li>', '\n', node)
+    node = re.sub(r'<ol>', '', node)
+    node = re.sub(r'</ol>', '', node)
+    return node
+
+
+# 核心算法，解析列表标签
+def parser_list(block):
+    # clear ul、ol tag
+    block = re.sub(r'<ul(.*?)>', '<ul>', block)
+    block = re.sub(r'<li(.*?)>', '<li>', block)
+
+    # storage variable
+    ul_array = []
+    ul_span = []
+    left_ul_start = []
+    right_ul_end = []
+    left_ul_index = []
+    right_ul_index = []
+    left_ul_level = []
+
+    # finally out value
+    content = ''
+
+    # get ul tag params
+    def get_ul_tuple(init=False):
+        if init:
+            del ul_array[0:]
+            del ul_span[0:]
+        for item in re.finditer(r'<ul>|</ul>|<ol>|</ol>', block):
+            ul_array.append(item.group())
+            ul_span.append(item.span())
+
+    get_ul_tuple()
+
+    # get left start tag <ul> <ol>
+    def get_list_tag_name(init=False):
+        if init:
+            del left_ul_start[0:]
+            del right_ul_end[0:]
+        for item in enumerate(ul_array):
+            if item[1] == '<ul>' or item[1] == '<ol>':
+                left_ul_start.append(item[1])
+        for item in enumerate(ul_array):
+            if item[1] == '</ul>' or item[1] == '</ol>':
+                right_ul_end.append(item[1])
+
+    get_list_tag_name()
+
+    # get the tag index value
+    def get_index(init=False):
+        if init:
+            del left_ul_index[0:]
+            del right_ul_index[0:]
+        for item in enumerate(ul_array):
+            if item[1] == '<ul>' or item[1] == '<ol>':
+                left_ul_index.append(item[0])
+        for item in enumerate(ul_array):
+            if item[1] == '</ul>' or item[1] == '</ol>':
+                right_ul_index.append(item[0])
+
+    get_index()
+
+    temp_right_ul_index_array = right_ul_index  # 用于计算右边索引值
+
+    # 提取ul级别，核心算法一：提取<ul><ol>的level
+    def get_level(init=False):
+        if init:
+            del left_ul_level[0:]
+        for item in enumerate(left_ul_index):
+            left_ul_level.append(item[0] * 2 - item[1])
+        # print('第4步,获取level：', left_ul_level)
+
+    get_level()
+    # 替换,此时left_ul_level和left_ul_index长度是一致的
+    for i in range(len(left_ul_start) - 1, -1, -1):
+        current_level = left_ul_level[i]
+        left_index = left_ul_index[i]
+        # 核心算法二：提取<ul><ol>对应</ul></ol>的索引值
+        temp_right_array = [k for k in temp_right_ul_index_array if k > left_index]
+        right_index = temp_right_array[0]
+        temp_right_ul_index_array.remove(right_index)
+        # 字符开始处
+        start_index = ul_span[left_index][0]
+        end_index = ul_span[right_index][1]
+        # 当前节点的字符串
+        current_node = block[start_index:end_index]
+        block = block[0:start_index] + block[end_index:]
+        get_ul_tuple(init=True)
+        get_list_tag_name(init=True)
+        get_index(init=True)
+        get_level(init=True)
+
+        # 解析ol
+        if is_ol(current_node):
+            content = content + parser_ol_block(current_node, current_level)
+
+        # 解析ul
+        if is_ul(current_node):
+            content = parser_ul_block(current_node, current_level) + content
+
+    return Pip(content).factory()
 
 
 # 解析 pre code的标签，必须<pre><code>code</code></pre>
@@ -159,7 +271,7 @@ def parser_pre(element="", language=""):
 # h1-h6 todo 可能还有其他子标签
 def parser_head(block):
     text = block
-    print('parser_head:', block)
+    # print('parser_head:', block)
     tag_name = get_tag_name(block)
     if is_has_child(block):
         # 产生递归
@@ -168,17 +280,17 @@ def parser_head(block):
         return parser_head(head_content)
     else:
         if tag_name == 'h1':
-            text = '\n# ' + get_tag_text(text) + '\n'
+            text = '\n\n# ' + get_tag_text(text) + '\n'
         elif tag_name == 'h2':
-            text = '\n## ' + get_tag_text(text) + '\n'
+            text = '\n\n## ' + get_tag_text(text) + '\n'
         elif tag_name == 'h3':
-            text = '\n### ' + get_tag_text(text) + '\n'
+            text = '\n\n### ' + get_tag_text(text) + '\n'
         elif tag_name == 'h4':
-            text = '\n#### ' + get_tag_text(text) + '\n'
+            text = '\n\n#### ' + get_tag_text(text) + '\n'
         elif tag_name == 'h5':
-            text = '\n##### ' + get_tag_text(text) + '\n'
+            text = '\n\n##### ' + get_tag_text(text) + '\n'
         elif tag_name == 'h6':
-            text = '\n###### ' + get_tag_text(text) + '\n'
+            text = '\n\n###### ' + get_tag_text(text) + '\n'
     return text
 
 
