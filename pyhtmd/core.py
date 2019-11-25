@@ -4,8 +4,8 @@
 # html to markdown
 
 import re
-from .utils import is_ol, is_ul, is_li, is_head, is_img, is_pre, is_quote, remove_attrs, init_html
-from .html_parser import parser_ul, parser_ol, parser_li, parser_head, parser_pre, parser_p, parser_img, parser_quote
+from .utils import is_p,is_ol, is_ul, is_li, is_head, is_img, is_pre, is_quote, remove_attrs, init_html
+from .html_parser import parser_p,parser_ul, parser_ol, parser_li, parser_head, parser_pre, parser_default, parser_img, parser_quote
 
 
 class Pyhtmd:
@@ -24,40 +24,43 @@ class Pyhtmd:
     # <span>xx</span>  => xxx
     @staticmethod
     def __clean_up_tag(self, block=""):
-        return re.sub(r'(<span>)(.*?)(<\/span>)', '\\2', block.strip())
+        return re.sub(r'(<span>)(.*?)(</span>)', '\\2', block.strip())
 
-    # todo 解析出来markdown
+    # 解析出来markdown
     def markdown(self):
-        if is_ol(self.html):
-            # print('is_ol ===> ')
+        if is_p(self.html):
+            print('is_p ===> ')
+            return parser_p(self.html)
+        elif is_ol(self.html):
+            print('is_ol ===> ')
             return parser_ol(self.html)
         elif is_ul(self.html):
-            # print('is_ul ===> ')
+            print('is_ul ===> ')
             return parser_ul(self.html)
         elif is_li(self.html):
-            # print('is_li ===> ')
+            print('is_li ===> ')
             return parser_li(self.html)
         # 导致递归移除，但看起来没有什么啊
         elif is_head(self.html):
-            # print('is_head ===> ')
+            print('is_head ===> ')
             return parser_head(remove_attrs(self.html))
         elif is_pre(self.html):
-            # print('is_pre ===> ')
+            print('is_pre ===> ')
             return parser_pre(element=self.html, language=self.language)
         elif is_img(self.html):
-            # print('is_img ===> ')
+            print('is_img ===> ')
             if self.img:
                 return parser_img(self.html)
             return self.html
         elif is_quote(self.html):
-            # print('引用部分： ===> ', self.html)
+            print('引用部分： ===> ', self.html)
             clear_block = self.__clean_up_tag(self, block=self.html)
             return parser_quote(clear_block)
         else:
-            # print('other tag  ===> ')
+            print('other tag  ===> ')
             # 此时就应该清空span标签
             other_block = self.__clean_up_tag(self, block=self.html)
-            return parser_p(other_block)
+            return parser_default(other_block)
 
     def get(self):
         return self.html

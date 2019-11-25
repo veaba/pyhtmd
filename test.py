@@ -102,20 +102,35 @@ array = [
     # 'data-title="Copy"></button></div></devsite-code> ',
     # '<li>Job: The job name.</li><li>Replica: The replica index.</li><li>Task: The task index.</li><li>Device type: The device type string (e.g. "CPU" or "GPU").</li><li>Device index: The device index.</li>',
     # '<li>11111 <ul><li>2222</li>3333<li>444</li></ul></li>',
-    '<li>11111<ul><li>222</li><ul><li>4444</li></ul></ul></li>',
+    # '<li>11111<ul><li>222</li><ul><li>4444</li></ul></ul></li>',
     # '<li>aaaaa</li><li>bbbbb</li><li>ccccc</li><li>ddddd</li><li>eeeee</li> \
     # <li>ffff</li><li>gggg</li><li>hhhhh</li><li>jjjjj</li>v',
-    # '<ol><li>1111</li>2222<li></li></ol>'
+    # '<ol><li>1111</li>2222<li></li></ol>',
+    '<devsite-heading><h3 id="aliases" is-upgraded="">Aliases:</h3></devsite-heading>',
+    # 'dsad <p> dddddd</p>',
+    # 'a',
+    # '<a>',
+    # '<a></a>',
+    '""""'
+    ''
+    ''
+    '"""'
 ]
+#
+# item = """
+# <p><a href="https://tensorflow.google.cn/api_docs/python/tf/audio"><code translate="no" dir="ltr">audio</code></a> module: Public API for tf.audio namespace.</p>
+# """
 
-for item in array:
-    # mk = Pip(item).factory()
-    mk = Pyhtmd(item).markdown()
-    print('===========================')
-    print(mk)
-    # x =get_tag_name(item)
-    # print(x)
-    print('===========================')
+item="""
+<devsite-heading text="TensorFlow" for="tensorflow" level="h2" link="" toc="" back-to-top=""><h2 id="tensorflow" is-upgraded="">TensorFlow<button role="button" class="devsite-heading-link button-flat material-icons" data-title="Copy link to this section"></button><a href="#top_of_page" class="devsite-back-to-top-link material-icons" data-title="返回页首"></a></h2></devsite-heading>
+"""
+# mk = Pip(item).factory()
+mk = Pyhtmd(item).markdown()
+print('============结果Start：===============')
+print(mk)
+# x =get_tag_name(item)
+# print(x)
+print('============结果End：===============')
 
 # x ='\n<li><a href="/api_docs/python/tf/clip_by_value"><code translate="no" dir="ltr">tf.compat.v1.clip_by_value</code></a></li>\n<li><a href="/api_docs/python/tf/clip_by_value"><code translate="no" dir="ltr">tf.compat.v2.clip_by_value</code></a></li>\n'
 

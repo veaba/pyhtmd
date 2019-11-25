@@ -102,19 +102,16 @@ class Pip:
 # 需要首位的位置
 # todo 需要处理ol标签
 def parser_li(block):
-    # print('li：', block)
     return block
 
 
 # 解析ul
 def parser_ul(block):
-    # print('ul:', block)
     return parser_list(block)
 
 
 # 解析ol
 def parser_ol(block):
-    # print('ol:', block)
     return parser_list(block)
 
 
@@ -122,6 +119,7 @@ def parser_ol(block):
 def parser_ul_block(node, level):
     for index in range(node.count('<li>')):
         node = re.sub(r'<li>', '    ' * level + '- ', node, count=1)
+        node = remove_p(node)
     node = re.sub(r'</li>', '\n', node)
     node = re.sub(r'<ul>', '', node)
     node = re.sub(r'</ul>', '', node)
@@ -132,6 +130,8 @@ def parser_ul_block(node, level):
 def parser_ol_block(node, level):
     for index in range(node.count('<li>')):
         node = re.sub(r'<li>', '    ' * level + str(index + 1) + '. ', node, count=1)
+        node = remove_p(node)
+        # 移除p标签
     node = re.sub(r'</li>', '\n', node)
     node = re.sub(r'<ol>', '', node)
     node = re.sub(r'</ol>', '', node)
@@ -203,7 +203,6 @@ def parser_list(block):
             del left_ul_level[0:]
         for item in enumerate(left_ul_index):
             left_ul_level.append(item[0] * 2 - item[1])
-        # print('第4步,获取level：', left_ul_level)
 
     get_level()
     # 替换,此时left_ul_level和left_ul_index长度是一致的
@@ -247,7 +246,6 @@ def parser_pre_block(block, language=""):
 
     clear_up_content = clean_up(clear_wrap_pre)  # 有问题！
     content_remove_code = get_tag_text(clear_up_content)
-    # print('content_remove_code:',content_remove_code)
     remove_nbsp_content = content_remove_code.replace('&nbsp;', ' ')
     return '\n```' + language + '\n' + remove_nbsp_content + '\n```\n'
 
@@ -271,7 +269,6 @@ def parser_pre(element="", language=""):
 # h1-h6 todo 可能还有其他子标签
 def parser_head(block):
     text = block
-    # print('parser_head:', block)
     tag_name = get_tag_name(block)
     if is_has_child(block):
         # 产生递归
@@ -360,8 +357,17 @@ def parser_img(block):
     return '![' + alt + '](' + src + ')'
 
 
-# 解析，p block，默认块
+# 解析 p块
+
 def parser_p(block):
+    block = remove_p(block)
+    block = remove_span(block)
+    block = check_what_element(element=block)
+    return block
+
+
+# 解析，block，默认块
+def parser_default(block):
     new_html = block
     # 移除最外面的p标签
     if get_tag_name(block) == 'p':
