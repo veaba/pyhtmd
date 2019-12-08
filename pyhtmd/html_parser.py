@@ -3,6 +3,8 @@ import re
 # remove_attrs, \
 from .utils import remove_parent_wrap, \
     remove_span, \
+    br_to_newline, \
+    remove_attrs_value, \
     remove_p, \
     is_has_child, \
     get_tag_text, \
@@ -244,10 +246,11 @@ def parser_pre_block(block, language=""):
             span_string = item.group() or ""
             clear_wrap_pre = clear_wrap_pre.replace(span_string, get_tag_text(span_string))
 
-    clear_up_content = clean_up(clear_wrap_pre)  # 有问题！
-    content_remove_code = get_tag_text(clear_up_content)
-    remove_nbsp_content = content_remove_code.replace('&nbsp;', ' ')
-    return '\n```' + language + '\n' + remove_nbsp_content + '\n```\n'
+    pre_content = clear_wrap_pre
+    pre_content = parser_pre_code(pre_content)
+    remove_nbsp_content = pre_content.replace('&nbsp;', ' ')
+    remove_newline_content = br_to_newline(remove_nbsp_content)
+    return '\n```' + language + '\n' + remove_newline_content + '\n```\n'
 
 
 # bug  len(tuple(html_elements))会中断迭代循环
@@ -266,45 +269,48 @@ def parser_pre(element="", language=""):
     return '\n' + new_html + '\n'
 
 
+# todo 针对pre code
+# code class="devsite-terminal" data-terminal-prefix=">>>" dir="ltr">x = tf.constant([1, 2, 3])</code>
+def parser_pre_code(block):
+    code_content = block
+    code_blocks = re.finditer(r'<code(.*?)</code>', block)
+    for item in code_blocks:
+        content = item.group()
+        code_content = code_content.replace(content, parser_code(content, code=""))
+    return code_content
+
+
 # h1-h6 todo 可能还有其他子标签
 def parser_head(block):
     text = block
     tag_name = get_tag_name(block)
+    head = ['h1', 'h2', 'h3', 'h4', 'h5', 'h6']
     if is_has_child(block):
         # 产生递归
         clear_content = clean_up(block)
         head_content = Pip(clear_content).factory()
         return parser_head(head_content)
     else:
-        if tag_name == 'h1':
-            text = '\n\n# ' + get_tag_text(text) + '\n'
-        elif tag_name == 'h2':
-            text = '\n\n## ' + get_tag_text(text) + '\n'
-        elif tag_name == 'h3':
-            text = '\n\n### ' + get_tag_text(text) + '\n'
-        elif tag_name == 'h4':
-            text = '\n\n#### ' + get_tag_text(text) + '\n'
-        elif tag_name == 'h5':
-            text = '\n\n##### ' + get_tag_text(text) + '\n'
-        elif tag_name == 'h6':
-            text = '\n\n###### ' + get_tag_text(text) + '\n'
+        if tag_name in head:
+            text = '\n\n' + '#' * int(tag_name[1]) + ' ' + get_tag_text(text) + '\n'
     return text
 
 
 # 将code 解析为``,
 # <code translate="no" dir="ltr">tf.compat.v2.clip_by_value</code>
 # => tf.compat.v2.clip_by_value
-
-def parser_code(element="", whitespace=" "):
-    left = re.sub(r'<code(.*?)>', whitespace + '`', element.strip())
-    return re.sub(r'</code>', '`' + whitespace, left)
+# 存在一些属性例如：data-xx=">>>"的怪异属性
+def parser_code(element="", whitespace=" ", code="`"):
+    remove_attr_content = remove_attrs_value(element.strip())
+    left = re.sub(r'<code(.*?)>', whitespace + code, remove_attr_content.strip())
+    return re.sub(r'</code>', code + whitespace, left)
 
 
 # 将a标签 <a href="/api_docs/python/tf/clip_by_value"><code translate="no" dir="ltr">tf.compat.v2.clip_by_value</code></a>
 # 转为 [xx](xxx)
 
 def parser_a(element=""):
-    # todo 先检查a 标签里面包含其他东西
+    # 先检查a 标签里面包含其他东西
     the_href = get_href(element)
     left = re.sub(r'<a(.*?)>', '', element)
     a_content = re.sub(r'</a>', '', left)

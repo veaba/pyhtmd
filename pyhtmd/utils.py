@@ -187,7 +187,7 @@ def clean_up(block):
 
 # 剥离外边父级标签,等同于获取内容
 def remove_parent_wrap(block):
-    left = re.sub(r'^<(.*?)>', '', block)
+    left = re.sub(r'^<(.*?)[^=]>', '', block)
     right = re.sub(r'</*/([^/]+[^.])$', '', left)
     return right
 
@@ -207,7 +207,8 @@ def get_li_wrap(block):
 # 移除script标签
 def init_html(block=""):
     block = block.strip()
-    block = re.sub(r'(^\n)|(\n\n)', '', block)
+
+    block = re.sub(r'(\n$)|(^\n)|(\n\n)', '', block)
     block = re.sub(r'<script(.*?)</script>', '', block)
     block = re.sub(r'<math(.*?)</math>', '', block)
     block = re.sub(r'(<name(.*?)>)|(</name>)', '', block)  # 有些页面会出在<name>比如：https://tensorflow.google.cn/api_docs
@@ -218,12 +219,10 @@ def init_html(block=""):
         block = remove_parent_wrap(block)
     # /python/tf/DeviceSpec
     block = re.sub(r'(<id(.*?)>)|(</id>)', '', block)
-    block = re.sub(r'(<device_type(.*?)>)|(</device_type>)', '', block)
-    block = re.sub(r'(<devsite-code(.*?)>)|(</devsite-code>)', '', block)
     block = remove_button(block)
     block = remove_span(block)
     block = remove_div(block)
-    # 转换特殊字符,todo，后续可能有其他特殊字符，这里需要继续补充
+    # 转换特殊字符,后续可能有其他特殊字符，这里需要继续补充
     block = block.replace('&gt;', '>')
     block = block.replace('&lt;', '<')
     return block
@@ -232,6 +231,11 @@ def init_html(block=""):
 # 移除br
 def remove_br(block):
     return block.replace('<br>', '\n').replace('</br>', '\n').replace('    ', '\n    ')
+
+
+# 移除attrs，不限制任何标签
+def remove_attrs_value(block):
+    return re.sub(r' (.*?)="(.*?)"', '', block)
 
 
 # 移除attrs
@@ -266,6 +270,11 @@ def remove_attrs(block):
     # 移除标签，如果内容不存在的话移除,针对无意义button、a标签。比如<h2>Modules<button></button><a></a></h2>  => <h2>Modules</h2>
     ret = re.sub(r'(<button></button>|<a></a>)', '', remove_div_attr)
     return ret
+
+
+# br转\n
+def br_to_newline(block):
+    return block.replace('<br>', '\n')
 
 
 # 移除span标签
