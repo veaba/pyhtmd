@@ -4,8 +4,9 @@
 # html to markdown
 
 import re
-from .utils import is_p, is_ol, is_ul, is_li, is_head, is_img, is_pre, is_quote, remove_attrs, init_html
-from .html_parser import parser_p, parser_ul, parser_ol, parser_li, parser_head, parser_pre, parser_default, parser_img, \
+from .utils import is_p, is_ol, is_ul, is_em, is_li, is_head, is_img, is_pre, is_quote, remove_attrs, init_html
+from .html_parser import parser_p, parser_em, parser_ul, parser_ol, parser_li, parser_head, parser_pre, parser_default, \
+    parser_img, \
     parser_quote
 
 
@@ -57,8 +58,9 @@ class Pyhtmd:
             if '<pre' in self.html:
                 return parser_pre(element=self.html, language=self.language)
             clear_block = self.__clean_up_tag(self, block=self.html)
-            print("啊哈哈：",clear_block)
             return parser_quote(clear_block)
+        elif is_em(self.html):
+            return parser_em(self.html)
         else:
             print('other tag  ===> ')
             # 此时就应该清空span标签

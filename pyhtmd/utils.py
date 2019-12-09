@@ -138,9 +138,16 @@ def is_no_wrap(block):
         return True
 
 
+# 判断是em斜体
+def is_em(block):
+    if re.match(r'^<em', block):
+        return True
+    else:
+        return False
+
+
 # todo 判断所包围的标签还含有子标签,
 # 存在 True，不存在False
-
 def is_has_child(block):
     first_remove = remove_parent_wrap(block)
     second_remove = remove_parent_wrap(first_remove)

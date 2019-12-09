@@ -356,8 +356,19 @@ def parser_b(element=""):
     return parser_b_block(element)
 
 
-# 解析 img
+# 解析em 斜体
+def parser_em(element):
+    if is_has_child(element):
+        remove_wrap = remove_parent_wrap(element)
+        tag_name = get_tag_name(remove_wrap)
+        if tag_name == 'em':
+            return "*" + parser_code(remove_wrap, whitespace=" ").strip() + '* '
+        else:
+            raise RuntimeError('意外的类型，需要调整源码')
+    return parser_b_block(element)
 
+
+# 解析 img
 def parser_img(block):
     src = get_src(block)
     alt = get_alt(block)
@@ -365,7 +376,6 @@ def parser_img(block):
 
 
 # 解析 p块
-
 def parser_p(block):
     block = remove_p(block)
     block = remove_span(block)
@@ -375,10 +385,7 @@ def parser_p(block):
 
 # 解析，block，默认块
 def parser_default(block):
-    new_html = block
-    # 移除最外面的p标签
-    if get_tag_name(block) == 'p':
-        new_html = remove_parent_wrap(block)
+    new_html = remove_parent_wrap(block)
     new_html = remove_span(new_html)
     ret = check_what_element(element=new_html)
     return '\n' + ret + '\n'
