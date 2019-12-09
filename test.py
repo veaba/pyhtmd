@@ -192,20 +192,9 @@ array = [
 
 item = """
 
-<ul>
-<li><p><b><code translate="no" dir="ltr">model_fn</code></b>: Model function. Follows the signature:</p>
-
-<ul>
-<li><p>Returns:
-<a href="https://tensorflow.google.cn/api_docs/python/tf/estimator/EstimatorSpec"><code translate="no" dir="ltr">tf.estimator.EstimatorSpec</code></a></p></li>
-</ul></li>
-
-
-<li><p><b><code translate="no" dir="ltr">warm_start_from</code></b>: Optional string filepath to a checkpoint or SavedModel to
-             warm-start from, or a <a href="https://tensorflow.google.cn/api_docs/python/tf/estimator/WarmStartSettings"><code translate="no" dir="ltr">tf.estimator.WarmStartSettings</code></a>
-             object to fully configure warm-starting.</p>
-<devsite-code><pre class="" translate="no" dir="ltr" is-upgraded=""><code dir="ltr"><span class="pln">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp;</span><span class="typ">If</span><span class="pln"> </span><span class="kwd">None</span><span class="pun">,</span><span class="pln"> only TRAINABLE variables are warm</span><span class="pun">-</span><span class="pln">started</span><span class="pun">.</span><span class="pln"><br><br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp;</span><span class="typ">If</span><span class="pln"> the </span><span class="kwd">string</span><span class="pln"> filepath </span><span class="kwd">is</span><span class="pln"> provided instead of a<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp;</span><span class="pun">&lt;</span><span class="pln">a href</span><span class="pun">=</span><span class="str">"../../../../tf/estimator/WarmStartSettings"</span><span class="pun">&gt;&lt;</span><span class="pln">code</span><span class="pun">&gt;</span><span class="pln">tf</span><span class="pun">.</span><span class="pln">estimator</span><span class="pun">.</span><span class="typ">WarmStartSettings</span><span class="pun">&lt;</span><span class="str">/code&gt;&lt;/</span><span class="pln">a</span><span class="pun">&gt;,</span><span class="pln"> </span><span class="kwd">then</span><span class="pln"> all variables are<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp;warm</span><span class="pun">-</span><span class="pln">started</span><span class="pun">,</span><span class="pln"> </span><span class="kwd">and</span><span class="pln"> it </span><span class="kwd">is</span><span class="pln"> assumed that vocabularies<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp;</span><span class="kwd">and</span><span class="pln"> </span><span class="pun">&lt;</span><span class="pln">a href</span><span class="pun">=</span><span class="str">"../../../../tf/Tensor"</span><span class="pun">&gt;&lt;</span><span class="pln">code</span><span class="pun">&gt;</span><span class="pln">tf</span><span class="pun">.</span><span class="typ">Tensor</span><span class="pun">&lt;</span><span class="str">/code&gt;&lt;/</span><span class="pln">a</span><span class="pun">&gt;</span><span class="pln"> names are unchanged</span><span class="pun">.</span><span class="pln"><br></span></code></pre><div class="devsite-code-buttons-container"><button class="gc-analytics-event material-icons devsite-icon-code-dark devsite-toggle-dark" data-category="Site-Wide Custom Events" data-label="Dark Code Toggle" track-type="exampleCode" track-name="darkCodeToggle" data-title="Dark code theme"></button><button class="gc-analytics-event material-icons devsite-icon-code-light devsite-toggle-light" data-category="Site-Wide Custom Events" data-label="Light Code Toggle" track-type="exampleCode" track-name="lightCodeToggle" data-title="Light code theme"></button><button class="gc-analytics-event material-icons devsite-icon-copy" data-category="Site-Wide Custom Events" data-label="Click To Copy" track-type="exampleCode" track-name="clickToCopy" data-title="Copy"></button></div></devsite-code></li>
-</ul>
+<devsite-code no-copy=""><pre translate="no" dir="ltr" is-upgraded=""><code translate="no" dir="ltr">pdf(x; alpha, beta, x &gt; 0) = x**(alpha - 1) exp(-x beta) / Z
+Z = Gamma(alpha) beta**(-alpha)
+</code></pre><div class="devsite-code-buttons-container"><button class="gc-analytics-event material-icons devsite-icon-code-dark devsite-toggle-dark" data-category="Site-Wide Custom Events" data-label="Dark Code Toggle" track-type="exampleCode" track-name="darkCodeToggle" data-title="Dark code theme"></button><button class="gc-analytics-event material-icons devsite-icon-code-light devsite-toggle-light" data-category="Site-Wide Custom Events" data-label="Light Code Toggle" track-type="exampleCode" track-name="lightCodeToggle" data-title="Light code theme"></button></div></devsite-code>
 """
 
 mk = Pyhtmd(item).markdown()
@@ -215,20 +204,3 @@ print(mk)
 # print(x)
 print('============结果End：===============')
 
-# x ='\n<li><a href="/api_docs/python/tf/clip_by_value"><code translate="no"
-# dir="ltr">tf.compat.v1.clip_by_value</code></a></li>\n<li><a href="/api_docs/python/tf/clip_by_value"><code
-# translate="no" dir="ltr">tf.compat.v2.clip_by_value</code></a></li>\n'
-
-# o = x.replace('\n','')
-# print(o)
-
-# mk=Pyhtmd(o).markdown()
-# print(mk)
-
-
-# array=[ '<h3 id="aliases" is-upgraded="">Aliases:<button role="button" class="devsite-heading-link button-flat
-# material-icons" title="Copy link to this section"></button></h3>' ]
-
-# for item in array:
-#     ret = re.sub(r'<b(.*?)">', '<b>', item)
-#     print(ret)

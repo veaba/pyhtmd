@@ -214,8 +214,7 @@ def get_li_wrap(block):
 # 移除script标签
 def init_html(block=""):
     block = block.strip()
-
-    block = re.sub(r'(\n$)|(^\n)|(\n\n)', '', block)
+    block = re.sub(r'(\n$)|(^\n)|(\n\n)|(\n)', '<br>', block)
     block = re.sub(r'<script(.*?)</script>', '', block)
     block = re.sub(r'<math(.*?)</math>', '', block)
     block = re.sub(r'(<name(.*?)>)|(</name>)', '', block)  # 有些页面会出在<name>比如：https://tensorflow.google.cn/api_docs
