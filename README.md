@@ -7,6 +7,7 @@
 - 无法解析多层级HTML
 - 只能是单Node
 - 这项目目前只针对 [tensorflow-docs](https://github.com/veaba/tensorflow-docs) 项目
+- 存在个别自定义标签无法识别，基本可以适用平常场景
 
 
 ## parser

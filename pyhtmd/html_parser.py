@@ -100,9 +100,8 @@ class Pip:
 
 
 # 解析 li 标签
-# todo 可能还有其他子标签
+# 可能还有其他子标签
 # 需要首位的位置
-# todo 需要处理ol标签
 def parser_li(block):
     return block
 
@@ -154,8 +153,6 @@ def parser_list(block):
     left_ul_index = []
     right_ul_index = []
     left_ul_level = []
-
-    # finally out value
     content = ''
 
     # get ul tag params
@@ -269,7 +266,7 @@ def parser_pre(element="", language=""):
     return '\n' + new_html + '\n'
 
 
-# todo 针对pre code
+# 针对pre code
 # code class="devsite-terminal" data-terminal-prefix=">>>" dir="ltr">x = tf.constant([1, 2, 3])</code>
 def parser_pre_code(block):
     code_content = block
@@ -324,7 +321,6 @@ def parser_quote(element=""):
     html_blocks = re.finditer(r'<(.*?)(>)(.*?)(<\/(.*?)>)', new_html)
     for item in html_blocks:
         block_string = item.group() or ""
-        print('block_string：',block_string)
         new_html = new_html.replace(block_string, check_what_element(element=block_string))
     return '\n>' + remove_parent_wrap(new_html) + '\n'
 
