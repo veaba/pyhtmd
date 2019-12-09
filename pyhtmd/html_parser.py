@@ -324,6 +324,7 @@ def parser_quote(element=""):
     html_blocks = re.finditer(r'<(.*?)(>)(.*?)(<\/(.*?)>)', new_html)
     for item in html_blocks:
         block_string = item.group() or ""
+        print('block_string：',block_string)
         new_html = new_html.replace(block_string, check_what_element(element=block_string))
     return '\n>' + remove_parent_wrap(new_html) + '\n'
 
