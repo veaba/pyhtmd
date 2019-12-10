@@ -1,37 +1,27 @@
-import re
+# 第一步，解析img 最小标签
+# 解析 button标签
+# 解析span 标签
+# 解析b标签
 
-nodes = [
-    'aaa',
-    'b dad',
-    'img',
-    '<img src="http://xx"',
-    '<img src="http://xx">',
-    '<div>sdsad</div>',
-    '<div-s>sdsad</div-s>',
-    '<br>',
-    '<br />',
-    '<>',
-    '<1>'
-]
+import re 
+from test_html import html_content
+html_re=re.compile(r"""
+  <[a-zA-Z][^\t\n\r\f />\x00]*       # tag name
+  (?:[\s/]*                          # optional whitespace before attribute name
+    (?:(?<=['"\s/])[^\s/>][^\s/=>]*  # attribute name
+      (?:\s*=+\s*                    # value indicator
+        (?:'[^']*'                   # LITA-enclosed value
+          |"[^"]*"                   # LIT-enclosed value
+          |(?!['"])[^>\s]*           # bare value
+         )
+       )?(?:\s|/(?!>))*
+     )*
+   )?
+  \s*
+  """)
 
-HTML_TAGS = [
-    '<a',
-    '<b',
-    '<button',
-    '<div',
-    '<h1',
-    '<h2',
-    '<h3',
-    '<h4',
-    '<h5',
-    '<h6',
-    '<img',
-    '<pre',
-    '<span',
-]
+html_nodes=html_re.match(html_content)
 
-for node in nodes:
-    if re.match(r'^(<img)|(<br)+(.*?)>$',node):
-        print('===> ', node)
-    else:
-        print('---> ', node)
+# print(html_nodes.strip())
+
+print(html_content.strip().replace('\n','').replace('\t',''))

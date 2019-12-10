@@ -191,10 +191,9 @@ array = [
 
 
 item = """
-
-<devsite-code no-copy=""><pre translate="no" dir="ltr" is-upgraded=""><code translate="no" dir="ltr">pdf(x; alpha, beta, x &gt; 0) = x**(alpha - 1) exp(-x beta) / Z
-Z = Gamma(alpha) beta**(-alpha)
-</code></pre><div class="devsite-code-buttons-container"><button class="gc-analytics-event material-icons devsite-icon-code-dark devsite-toggle-dark" data-category="Site-Wide Custom Events" data-label="Dark Code Toggle" track-type="exampleCode" track-name="darkCodeToggle" data-title="Dark code theme"></button><button class="gc-analytics-event material-icons devsite-icon-code-light devsite-toggle-light" data-category="Site-Wide Custom Events" data-label="Light Code Toggle" track-type="exampleCode" track-name="lightCodeToggle" data-title="Light code theme"></button></div></devsite-code>
+<p><em>NOTE</em>: <code translate="no" dir="ltr">Substr</code> supports broadcasting up to two dimensions. More about
+broadcasting
+<a href="http://docs.scipy.org/doc/numpy/user/basics.broadcasting.html">here</a></p>
 """
 
 mk = Pyhtmd(item).markdown()

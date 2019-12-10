@@ -49,6 +49,4 @@ print(content) # `Hello, world ! by Pyhtmd.`
 ```
 
 ## todo 开发中 
-- 递归太多被打断了
-- 特殊字符，数学符号！
-- 尚未处理ol标签
+- 核心的问题是，粘在一起的代码如何拆分？
