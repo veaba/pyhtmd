@@ -8,7 +8,8 @@
 - 只能是单Node
 - 这项目目前只针对 [tensorflow-docs](https://github.com/veaba/tensorflow-docs) 项目
 - 存在个别自定义标签无法识别，基本可以适用平常场景
-
+- python官方html_parser https://docs.python.org/zh-cn/3.7/library/html.parser.html
+- html.parser 源码 https://github.com/python/cpython/blob/3.7/Lib/html/parser.py
 
 ## parser
 - [x] single html node element
