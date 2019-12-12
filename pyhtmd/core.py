@@ -6,8 +6,7 @@
 import re
 from .utils import is_p, is_ol, is_ul, is_em, is_li, is_head, is_img, is_pre, is_quote, remove_attrs, init_html
 from .html_parser import parser_p, parser_em, parser_ul, parser_ol, parser_li, parser_head, parser_pre, parser_default, \
-    parser_img, \
-    parser_quote
+    parser_img, parser_quote
 
 
 class Pyhtmd:
@@ -24,7 +23,8 @@ class Pyhtmd:
     # 比如：span
     # <span>xx</span>  => xxx
     @staticmethod
-    def __clean_up_tag(self, block=""):
+    def __clean_up_tag(self, block):
+        block = str(block)
         return re.sub(r'(<span>)(.*?)(</span>)', '\\2', block.strip())
 
     # 解析出来markdown

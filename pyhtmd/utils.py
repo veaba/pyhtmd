@@ -4,6 +4,8 @@ HTML_TAGS = [
     '<a',
     '<b',
     '<button',
+    '<ul',
+    '<li'
     '<div',
     '<h1',
     '<h2',
@@ -194,7 +196,7 @@ def clean_up(block):
 
 # 剥离外边父级标签,等同于获取内容
 def remove_parent_wrap(block):
-    left = re.sub(r'^<(.*?)[^=]>', '', block)
+    left = re.sub(r'^<(.*?)[^=]>|^<(.*?)>', '', block)
     right = re.sub(r'</*/([^/]+[^.])$', '', left)
     return right
 
@@ -214,7 +216,7 @@ def get_li_wrap(block):
 # 移除script标签
 def init_html(block=""):
     block = block.strip()
-    block = re.sub(r'(\n$)|(^\n)|(\n\n)|(\n)', '<br>', block)
+    block = re.sub(r'(\n$)|(^\n)|(\n\n)|(\n)', '', block)
     block = re.sub(r'<script(.*?)</script>', '', block)
     block = re.sub(r'<math(.*?)</math>', '', block)
     block = re.sub(r'(<name(.*?)>)|(</name>)', '', block)  # 有些页面会出在<name>比如：https://tensorflow.google.cn/api_docs
@@ -281,6 +283,11 @@ def remove_attrs(block):
 # br转\n
 def br_to_newline(block):
     return block.replace('<br>', '\n')
+
+
+# br 清除
+def br_to_empty(block):
+    return block.replace('<br>', '')
 
 
 # 移除span标签

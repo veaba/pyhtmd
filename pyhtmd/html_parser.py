@@ -4,6 +4,7 @@ import re
 from .utils import remove_parent_wrap, \
     remove_span, \
     br_to_newline, \
+    br_to_empty, \
     remove_attrs_value, \
     remove_p, \
     is_has_child, \
@@ -47,6 +48,7 @@ class Pip:
         block_content = self.__strong_pip(self, block_content)
         block_content = self.__img_pip(self, block_content)
         block_content = self.__code_pip(self, block_content)
+        block_content = self.__em_pip(self, block_content)
         return block_content
 
     @staticmethod
@@ -71,6 +73,7 @@ class Pip:
             block_content = block_content.replace(content, parser_b(content))
         return block_content
 
+    # 解析strong标签
     @staticmethod
     def __strong_pip(self, block):
         block_content = block
@@ -80,6 +83,17 @@ class Pip:
             block_content = block_content.replace(content, parser_strong(content))
         return block_content
 
+    # 解析em 斜体标签
+    @staticmethod
+    def __em_pip(self, block):
+        em_content = block
+        em_blocks = re.finditer(r'<em(.*?)</em>', block)
+        for item in em_blocks:
+            content = item.group()
+            em_content = em_content.replace(content, parser_em(content))
+        return em_content
+
+    # 解析img标签
     @staticmethod
     def __img_pip(self, block):
         img_content = block
@@ -89,6 +103,7 @@ class Pip:
             img_content = img_content.replace(content, parser_img(content))
         return img_content
 
+    # 解析code标签
     @staticmethod
     def __code_pip(self, block):
         code_content = block
@@ -231,7 +246,9 @@ def parser_list(block):
         if is_ul(current_node):
             content = parser_ul_block(current_node, current_level) + content
 
-    return Pip(content).factory()
+    content = Pip(content).factory()
+
+    return br_to_newline(content)
 
 
 # 解析 pre code的标签，必须<pre><code>code</code></pre>
@@ -348,7 +365,7 @@ def parser_b(element=""):
         if tag_name == 'code':
             return "**" + parser_code(remove_wrap, whitespace=" ").strip() + '** '
         else:
-            raise RuntimeError('意外的类型，需要调整源码')
+            return element
     return parser_b_block(element)
 
 
@@ -360,8 +377,13 @@ def parser_em(element):
         if tag_name == 'em':
             return "*" + parser_code(remove_wrap, whitespace=" ").strip() + '* '
         else:
-            raise RuntimeError('意外的类型，需要调整源码')
-    return parser_b_block(element)
+            return element
+    return parser_em_block(element)
+
+
+# 解析纯em斜体块
+def parser_em_block(element):
+    return '*' + remove_parent_wrap(element) + '*'
 
 
 # 解析 img
@@ -376,6 +398,7 @@ def parser_p(block):
     block = remove_p(block)
     block = remove_span(block)
     block = check_what_element(element=block)
+    block = br_to_empty(block)
     return block
 
 
