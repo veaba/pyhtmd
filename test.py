@@ -190,12 +190,47 @@ array = [
 
 
 item = """
-<blockquote>
-<blockquote>
-<p>assertSameElements([1, 1, 1, 0, 0, 0], [0, 1])
-  # Doesn't raise an AssertionError</p>
-</blockquote>
-</blockquote>
+<ul>
+<li><p><b><code translate="no" dir="ltr">model_fn</code></b>: Model function. Follows the signature:</p>
+
+<ul>
+<li><p>Args:</p></li>
+<li><p><code translate="no" dir="ltr">features</code>: This is the first item returned from the <code translate="no" dir="ltr">input_fn</code>
+   passed to <code translate="no" dir="ltr">train</code>, <code translate="no" dir="ltr">evaluate</code>, and <code translate="no" dir="ltr">predict</code>. This should be a
+   single <a href="https://tensorflow.google.cn/api_docs/python/tf/Tensor"><code translate="no" dir="ltr">tf.Tensor</code></a> or <code translate="no" dir="ltr">dict</code> of same.</p></li>
+<li><p><code translate="no" dir="ltr">labels</code>: This is the second item returned from the <code translate="no" dir="ltr">input_fn</code>
+   passed to <code translate="no" dir="ltr">train</code>, <code translate="no" dir="ltr">evaluate</code>, and <code translate="no" dir="ltr">predict</code>. This should be a
+   single <a href="https://tensorflow.google.cn/api_docs/python/tf/Tensor"><code translate="no" dir="ltr">tf.Tensor</code></a> or <code translate="no" dir="ltr">dict</code> of same (for multi-head models).
+   If mode is <a href="https://tensorflow.google.cn/api_docs/python/tf/estimator/ModeKeys#PREDICT"><code translate="no" dir="ltr">tf.estimator.ModeKeys.PREDICT</code></a>, <code translate="no" dir="ltr">labels=None</code> will
+   be passed. If the <code translate="no" dir="ltr">model_fn</code>'s signature does not accept
+   <code translate="no" dir="ltr">mode</code>, the <code translate="no" dir="ltr">model_fn</code> must still be able to handle
+   <code translate="no" dir="ltr">labels=None</code>.</p></li>
+<li><p><code translate="no" dir="ltr">mode</code>: Optional. Specifies if this is training, evaluation or
+   prediction. See <a href="https://tensorflow.google.cn/api_docs/python/tf/estimator/ModeKeys"><code translate="no" dir="ltr">tf.estimator.ModeKeys</code></a>.</p></li>
+<li><p><code translate="no" dir="ltr">params</code>: Optional <code translate="no" dir="ltr">dict</code> of hyperparameters.  Will receive what
+   is passed to Estimator in <code translate="no" dir="ltr">params</code> parameter. This allows
+   to configure Estimators from hyper parameter tuning.</p></li>
+<li><p><code translate="no" dir="ltr">config</code>: Optional <a href="/api_docs/python/tf/estimator/RunConfig"><code translate="no" dir="ltr">estimator.RunConfig</code></a> object. Will receive what
+   is passed to Estimator as its <code translate="no" dir="ltr">config</code> parameter, or a default
+   value. Allows setting up things in your <code translate="no" dir="ltr">model_fn</code> based on
+   configuration such as <code translate="no" dir="ltr">num_ps_replicas</code>, or <code translate="no" dir="ltr">model_dir</code>.</p></li>
+<li><p>Returns:
+<a href="https://tensorflow.google.cn/api_docs/python/tf/estimator/EstimatorSpec"><code translate="no" dir="ltr">tf.estimator.EstimatorSpec</code></a></p></li>
+</ul></li>
+<li><p><b><code translate="no" dir="ltr">model_dir</code></b>: Directory to save model parameters, graph and etc. This can
+also be used to load checkpoints from the directory into an estimator to
+continue training a previously saved model. If <code translate="no" dir="ltr">PathLike</code> object, the
+path will be resolved. If <code translate="no" dir="ltr">None</code>, the model_dir in <code translate="no" dir="ltr">config</code> will be used
+if set. If both are set, they must be same. If both are <code translate="no" dir="ltr">None</code>, a
+temporary directory will be used.</p></li>
+<li><p><b><code translate="no" dir="ltr">config</code></b>: <a href="/api_docs/python/tf/estimator/RunConfig"><code translate="no" dir="ltr">estimator.RunConfig</code></a> configuration object.</p></li>
+<li><p><b><code translate="no" dir="ltr">params</code></b>: <code translate="no" dir="ltr">dict</code> of hyper parameters that will be passed into <code translate="no" dir="ltr">model_fn</code>.
+    Keys are names of parameters, values are basic python types.</p></li>
+<li><p><b><code translate="no" dir="ltr">warm_start_from</code></b>: Optional string filepath to a checkpoint or SavedModel to
+             warm-start from, or a <a href="https://tensorflow.google.cn/api_docs/python/tf/estimator/WarmStartSettings"><code translate="no" dir="ltr">tf.estimator.WarmStartSettings</code></a>
+             object to fully configure warm-starting.</p>
+<devsite-code><pre class="" translate="no" dir="ltr" is-upgraded=""><code dir="ltr"><span class="pln">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp;</span><span class="typ">If</span><span class="pln"> </span><span class="kwd">None</span><span class="pun">,</span><span class="pln"> only TRAINABLE variables are warm</span><span class="pun">-</span><span class="pln">started</span><span class="pun">.</span><span class="pln"><br><br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp;</span><span class="typ">If</span><span class="pln"> the </span><span class="kwd">string</span><span class="pln"> filepath </span><span class="kwd">is</span><span class="pln"> provided instead of a<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp;</span><span class="pun">&lt;</span><span class="pln">a href</span><span class="pun">=</span><span class="str">"../../../../tf/estimator/WarmStartSettings"</span><span class="pun">&gt;&lt;</span><span class="pln">code</span><span class="pun">&gt;</span><span class="pln">tf</span><span class="pun">.</span><span class="pln">estimator</span><span class="pun">.</span><span class="typ">WarmStartSettings</span><span class="pun">&lt;</span><span class="str">/code&gt;&lt;/</span><span class="pln">a</span><span class="pun">&gt;,</span><span class="pln"> </span><span class="kwd">then</span><span class="pln"> all variables are<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp;warm</span><span class="pun">-</span><span class="pln">started</span><span class="pun">,</span><span class="pln"> </span><span class="kwd">and</span><span class="pln"> it </span><span class="kwd">is</span><span class="pln"> assumed that vocabularies<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp;</span><span class="kwd">and</span><span class="pln"> </span><span class="pun">&lt;</span><span class="pln">a href</span><span class="pun">=</span><span class="str">"../../../../tf/Tensor"</span><span class="pun">&gt;&lt;</span><span class="pln">code</span><span class="pun">&gt;</span><span class="pln">tf</span><span class="pun">.</span><span class="typ">Tensor</span><span class="pun">&lt;</span><span class="str">/code&gt;&lt;/</span><span class="pln">a</span><span class="pun">&gt;</span><span class="pln"> names are unchanged</span><span class="pun">.</span><span class="pln"><br></span></code></pre><div class="devsite-code-buttons-container"><button class="gc-analytics-event material-icons devsite-icon-code-dark devsite-toggle-dark" data-category="Site-Wide Custom Events" data-label="Dark Code Toggle" track-type="exampleCode" track-name="darkCodeToggle" title="Dark code theme"></button><button class="gc-analytics-event material-icons devsite-icon-code-light devsite-toggle-light" data-category="Site-Wide Custom Events" data-label="Light Code Toggle" track-type="exampleCode" track-name="lightCodeToggle" title="Light code theme"></button><button class="gc-analytics-event material-icons devsite-icon-copy" data-category="Site-Wide Custom Events" data-label="Click To Copy" track-type="exampleCode" track-name="clickToCopy" title="Copy"></button></div></devsite-code></li>
+</ul>
 """
 
 mk = Pyhtmd(item).markdown()
