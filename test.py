@@ -1,5 +1,6 @@
 # todo table
 from pyhtmd.core import Pyhtmd
+
 # from pyhtmd.utils import remove_attrs, get_tag_name
 
 # from pyhtmd.core import Pyhtmd
@@ -188,6 +189,36 @@ array = [
     '"""'
 ]
 
+# 等待测试
+
+demo2 = """
+<ul>
+<li><b><code translate="no" dir="ltr">input</code></b>: A <code translate="no" dir="ltr">Tensor</code>. 4-D with shape <code translate="no" dir="ltr">[batch, height, width, depth]</code>.</li>
+<li><p><b><code translate="no" dir="ltr">paddings</code></b>: A <code translate="no" dir="ltr">Tensor</code>. Must be one of the following types: <code translate="no" dir="ltr">int32</code>, <code translate="no" dir="ltr">int64</code>.
+2-D tensor of non-negative integers with shape <code translate="no" dir="ltr">[2, 2]</code>. It specifies
+the padding of the input with zeros across the spatial dimensions as follows:</p>
+<devsite-code><pre class="" translate="no" dir="ltr" is-upgraded=""><code dir="ltr"><span class="pln">paddings </span><span class="pun">=</span><span class="pln"> </span><span class="pun">[[</span><span class="pln">pad_top</span><span class="pun">,</span><span class="pln"> pad_bottom</span><span class="pun">],</span><span class="pln"> </span><span class="pun">[</span><span class="pln">pad_left</span><span class="pun">,</span><span class="pln"> pad_right</span><span class="pun">]]</span><span class="pln"><br></span></code></pre><div class="devsite-code-buttons-container"><button class="gc-analytics-event material-icons devsite-icon-code-dark devsite-toggle-dark" data-category="Site-Wide Custom Events" data-label="Dark Code Toggle" track-type="exampleCode" track-name="darkCodeToggle" data-title="Dark code theme"></button><button class="gc-analytics-event material-icons devsite-icon-code-light devsite-toggle-light" data-category="Site-Wide Custom Events" data-label="Light Code Toggle" track-type="exampleCode" track-name="lightCodeToggle" data-title="Light code theme"></button><button class="gc-analytics-event material-icons devsite-icon-copy" data-category="Site-Wide Custom Events" data-label="Click To Copy" track-type="exampleCode" track-name="clickToCopy" data-title="Copy"></button></div></devsite-code>
+<p>The effective spatial dimensions of the zero-padded input tensor will be:</p>
+<devsite-code><pre class="" translate="no" dir="ltr" is-upgraded=""><code dir="ltr"><span class="pln">height_pad </span><span class="pun">=</span><span class="pln"> pad_top </span><span class="pun">+</span><span class="pln"> height </span><span class="pun">+</span><span class="pln"> pad_bottom<br>width_pad </span><span class="pun">=</span><span class="pln"> pad_left </span><span class="pun">+</span><span class="pln"> width </span><span class="pun">+</span><span class="pln"> pad_right<br></span></code></pre><div class="devsite-code-buttons-container"><button class="gc-analytics-event material-icons devsite-icon-code-dark devsite-toggle-dark" data-category="Site-Wide Custom Events" data-label="Dark Code Toggle" track-type="exampleCode" track-name="darkCodeToggle" title="Dark code theme"></button><button class="gc-analytics-event material-icons devsite-icon-code-light devsite-toggle-light" data-category="Site-Wide Custom Events" data-label="Light Code Toggle" track-type="exampleCode" track-name="lightCodeToggle" title="Light code theme"></button><button class="gc-analytics-event material-icons devsite-icon-copy" data-category="Site-Wide Custom Events" data-label="Click To Copy" track-type="exampleCode" track-name="clickToCopy" title="Copy"></button></div></devsite-code>
+<p>The attr <code translate="no" dir="ltr">block_size</code> must be greater than one. It indicates the block size.</p>
+
+<ul>
+<li>Non-overlapping blocks of size <code translate="no" dir="ltr">block_size x block size</code> in the height and
+width dimensions are rearranged into the batch dimension at each location.</li>
+<li>The batch of the output tensor is <code translate="no" dir="ltr">batch * block_size * block_size</code>.</li>
+<li>Both height_pad and width_pad must be divisible by block_size.</li>
+</ul>
+
+<p>The shape of the output will be:</p>
+
+<p>[batch<em>block_size</em>block_size, height_pad/block_size, width_pad/block_size,
+   depth]</p>
+
+<p>Some examples:</p>
+
+<p>(1) For the following input of shape <code translate="no" dir="ltr">[1, 2, 2, 1]</code> and block_size of 2:</p></li>
+</ul>
+"""
 
 item = """
 <ul>
@@ -237,4 +268,3 @@ mk = Pyhtmd(item).markdown()
 print('============结果Start：===============')
 print(mk)
 print('============结果End：===============')
-
