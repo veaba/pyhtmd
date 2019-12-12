@@ -5,7 +5,8 @@ HTML_TAGS = [
     '<b',
     '<button',
     '<ul',
-    '<li'
+    '<ol',
+    '<li',
     '<div',
     '<h1',
     '<h2',

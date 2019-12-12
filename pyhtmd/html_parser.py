@@ -62,7 +62,12 @@ class Pip:
 
     @staticmethod
     def __p_pip(self, block):
-        return block
+        p_content = block
+        p_blocks = re.finditer(r'<p(.*?)</p>', block)
+        for item in p_blocks:
+            content = item.group()
+            p_content = p_content.replace(content, parser_p(content))
+        return p_content
 
     @staticmethod
     def __b_pip(self, block):
@@ -335,11 +340,15 @@ def parser_a(element=""):
 
 def parser_quote(element=""):
     new_html = element
-    html_blocks = re.finditer(r'<(.*?)(>)(.*?)(<\/(.*?)>)', new_html)
+    html_blocks = re.finditer(r'<(.*?)(>)(.*?)(</(.*?)>)', new_html)
     for item in html_blocks:
         block_string = item.group() or ""
         new_html = new_html.replace(block_string, check_what_element(element=block_string))
-    return '\n>' + remove_parent_wrap(new_html) + '\n'
+    remove_parent = remove_parent_wrap(new_html)
+    if 'blockquote' in remove_parent:
+        remove_parent = remove_parent_wrap(remove_parent)
+        return '\n> ' + Pip(remove_parent).factory() + '\n'
+    return '\n> ' + Pip(remove_parent).factory() + '\n'
 
 
 # 解析strong
