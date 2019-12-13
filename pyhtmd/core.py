@@ -28,7 +28,9 @@ class Pyhtmd:
         return re.sub(r'(<span>)(.*?)(</span>)', '\\2', block.strip())
 
     # 解析出来markdown
-    def markdown(self):
+    def markdown(self, html=None):
+        if html:
+            self.html = html
         if is_p(self.html):
             # print('is_p ===> ')
             return parser_p(self.html)

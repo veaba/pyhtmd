@@ -17,6 +17,34 @@
 - [x] img
 - [x] head html node element
 
+## bug
+当前的list 标签算法无法解析这种结构：
+因为算法中，假定是依次序性ul组成结束的标签
+```html
+<!--假定的是-->
+<ul><li><ul><li></ul><ul><li></li></ul></li></ul>
+<!--bug-->
+<ul>
+    <li>甲甲甲甲甲</li>
+    <li>乙乙乙乙乙</li>
+    <li>
+        <ul>
+            <li>aaaaaaa</li>
+            <li>bbbbbbb</li>
+            <li>ccccccc</li>
+        </ul>
+    </li>
+    <li>丙丙丙丙丙</li>
+    <li>丁丁丁丁丁</li>
+    <li>
+        <ul>
+            <li>33333</li>
+            <li>44444</li>
+            <li>55555</li>
+        </ul>
+    </li>
+</ul>
+```
 
 ## install 
 

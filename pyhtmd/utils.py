@@ -149,7 +149,7 @@ def is_em(block):
         return False
 
 
-# todo 判断所包围的标签还含有子标签,
+# 判断所包围的标签还含有子标签,
 # 存在 True，不存在False
 def is_has_child(block):
     first_remove = remove_parent_wrap(block)
@@ -202,12 +202,19 @@ def remove_parent_wrap(block):
     return right
 
 
+# 移除 list标签之间的空格
+def remove_list_whitespace(block):
+    content = block
+    list_array = re.findall(r'(ul>|</ul>|li>|<li>|ol>|</ol>)(.*?)(<li|</li|</ul>|</ol>)', block)
+    for items in list_array:
+        for item in items:
+            if not len(item.strip()):
+                content = block.replace(item, '')
+    return content
+
+
 # 获取list将
-'''
-- 过滤字符，只剩下<ul></ul><ol></ol>
-'''
-
-
+# 过滤字符，只剩下<ul></ul><ol></ol>
 def get_li_wrap(block):
     return block
 
@@ -235,6 +242,16 @@ def init_html(block=""):
     block = block.replace('&gt;', '>')
     block = block.replace('&lt;', '<')
     return block
+
+
+# 警告：移除自定义标签，这个方法会稍显危险，会移除所有不认识的标签，HTML_TAGS
+def remove_custom(block):
+    tag_start_end_list = re.findall(r'<(.*?)>', block)
+    content = block
+    for tag in tag_start_end_list:
+        if '<' + tag not in HTML_TAGS:
+            content = re.sub(r'' + '<' + tag + '(.*>)|</' + tag + '>', '', content)
+    return content
 
 
 # 移除br
@@ -296,9 +313,9 @@ def remove_span(block):
     return re.sub(r'(<span(.*?)>)|(</span>)', '', block)
 
 
-# 移除p标签
+# 移除p标签,希望是不误杀<pre>标签
 def remove_p(block):
-    block = re.sub(r'(<p(.*?)>)', '', block)
+    block = re.sub(r'<p([^re]*?)>', '', block)
     return re.sub(r'</p>', '\n\n', block)
 
 
@@ -312,9 +329,13 @@ def remove_div(block):
     return re.sub(r'(<div(.*?)>)|(</div>)', '', block)
 
 
+# 移除nbsp
+def remove_nbsp(block):
+    return re.sub(r'&nbsp;|&nbsp; ', ' ', block)
+
+
 # 移除父级标签直接获取内容
 # <h1>xxx</h1> => xxx
-
 def get_tag_text(block):
     block = remove_br(block)
     if is_has_child(block):

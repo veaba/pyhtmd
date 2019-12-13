@@ -6,7 +6,10 @@ from .utils import remove_parent_wrap, \
     br_to_newline, \
     br_to_empty, \
     remove_attrs_value, \
+    remove_custom, \
     remove_p, \
+    remove_nbsp, \
+    remove_list_whitespace, \
     is_has_child, \
     get_tag_text, \
     get_tag_name, \
@@ -47,8 +50,12 @@ class Pip:
         block_content = self.__b_pip(self, block_content)
         block_content = self.__strong_pip(self, block_content)
         block_content = self.__img_pip(self, block_content)
+        block_content = self.__pre_pip(self, block_content)
         block_content = self.__code_pip(self, block_content)
         block_content = self.__em_pip(self, block_content)
+        block_content = remove_custom(block_content)
+        block_content = remove_nbsp(block_content)
+        block_content = remove_p(block_content)
         return block_content
 
     @staticmethod
@@ -63,7 +70,7 @@ class Pip:
     @staticmethod
     def __p_pip(self, block):
         p_content = block
-        p_blocks = re.finditer(r'<p(.*?)</p>', block)
+        p_blocks = re.finditer(r'<p([^re]*?)</p>', block)
         for item in p_blocks:
             content = item.group()
             p_content = p_content.replace(content, parser_p(content))
@@ -108,6 +115,16 @@ class Pip:
             img_content = img_content.replace(content, parser_img(content))
         return img_content
 
+    # 解析pre code标签
+    @staticmethod
+    def __pre_pip(self, block):
+        pre_content = block
+        pre_blocks = re.finditer(r'<pre(.*?)</pre>', block)
+        for item in pre_blocks:
+            content = item.group()
+            pre_content = pre_content.replace(content, parser_pre(content))
+        return pre_content
+
     # 解析code标签
     @staticmethod
     def __code_pip(self, block):
@@ -137,33 +154,43 @@ def parser_ol(block):
 
 
 # 纯ul标签
-def parser_ul_block(node, level):
-    for index in range(node.count('<li>')):
-        node = re.sub(r'<li>', '    ' * level + '- ', node, count=1)
-        node = remove_p(node)
-    node = re.sub(r'</li>', '\n', node)
-    node = re.sub(r'<ul>', '', node)
-    node = re.sub(r'</ul>', '', node)
-    return node
+# def parser_ul_block(node, level):
+#     node = remove_list_whitespace(node)
+#     node = re.sub(r'>[ ]<', '', node)
+#     for index in range(node.count('<li>')):
+#         node = re.sub(r'<li>', '    ' * level + '- ', node, count=1)
+#         node = remove_p(node)
+#     node = re.sub(r'</li>', '\n', node)
+#     node = re.sub(r'<ul>', '', node)
+#     node = re.sub(r'</ul>', '', node)
+#     print('结果：\n', node)
+#     return node
 
 
-# 纯ol标签
-def parser_ol_block(node, level):
-    for index in range(node.count('<li>')):
-        node = re.sub(r'<li>', '    ' * level + str(index + 1) + '. ', node, count=1)
-        node = remove_p(node)
-        # 移除p标签
-    node = re.sub(r'</li>', '\n', node)
-    node = re.sub(r'<ol>', '', node)
-    node = re.sub(r'</ol>', '', node)
-    return node
+# # 纯ol标签
+# def parser_ol_block(node, level):
+#     for index in range(node.count('<li>')):
+#         node = re.sub(r'<li>', '    ' * level + str(index + 1) + '. ', node, count=1)
+#         node = remove_p(node)
+#         # 移除p标签
+#     node = re.sub(r'</li>', '\n', node)
+#     node = re.sub(r'<ol>', '', node)
+#     node = re.sub(r'</ol>', '', node)
+#     return node
 
 
 # 核心算法，解析列表标签
+# 这个也是一个逆序算法，从后往前切割
+# fix bug：2019年12月13日10:32:13 始终在后面
+# > 空格很多 <
 def parser_list(block):
     # clear ul、ol tag
     block = re.sub(r'<ul(.*?)>', '<ul>', block)
     block = re.sub(r'<li(.*?)>', '<li>', block)
+    block = remove_list_whitespace(block)  # 移除空格
+    # 始终是一个干净的字符块，不做任何替换出来
+    src_block = block
+    content = block
 
     # storage variable
     ul_array = []
@@ -173,7 +200,14 @@ def parser_list(block):
     left_ul_index = []
     right_ul_index = []
     left_ul_level = []
-    content = ''
+
+    """
+     todo 先得到ul块的元数组
+     [(start_index,end_index,level,'ul')]
+     [(start_index,end_index,level,'ol')]
+     
+    """
+    ul_block_index_tuple_array = []
 
     # get ul tag params
     def get_ul_tuple(init=False):
@@ -220,8 +254,8 @@ def parser_list(block):
     def get_level(init=False):
         if init:
             del left_ul_level[0:]
-        for item in enumerate(left_ul_index):
-            left_ul_level.append(item[0] * 2 - item[1])
+        for level in enumerate(left_ul_index):
+            left_ul_level.append(level[0] * 2 - level[1])
 
     get_level()
     # 替换,此时left_ul_level和left_ul_index长度是一致的
@@ -245,14 +279,45 @@ def parser_list(block):
 
         # 解析ol
         if is_ol(current_node):
-            content = content + parser_ol_block(current_node, current_level)
+            # content = content + parser_ol_block(current_node, current_level)
+            ul_block_index_tuple_array.append((start_index, end_index, current_level, 'ol'))
 
         # 解析ul
         if is_ul(current_node):
-            content = parser_ul_block(current_node, current_level) + content
+            ul_block_index_tuple_array.append((start_index, end_index, current_level, 'ul'))
+            # content = parser_ul_block(current_node, current_level) + content
 
+    # 上面的循环先得到全部的ul开始到索引值,此时是反序的
+    # print('打印ul块的索引值：', ul_block_index_tuple_array)
+
+    # 循环全部li
+    for k in range(len(ul_block_index_tuple_array)):
+        # for ul in ul_block_index_tuple_array:
+        ul = ul_block_index_tuple_array[k]
+        print('ul:',ul)
+        ul_start_index = ul[0]
+        ul_end_index = ul[1]
+        ul_level = ul[2]
+        ul_type = ul[3]
+        li_block_list = re.finditer(r'<li>', src_block)
+        for li in li_block_list:
+            li_span = li.span()
+            print('状态：')
+            # bug 如果li 同属于两个ul，将无法确定level
+            if ul_start_index < li_span[0] and li_span[1] < ul_end_index:
+                print('级别：', ul_level)
+                if ul_type == 'ul':
+                    content = re.sub(r'<li>', '    ' * ul_level + '- ', content, count=1)
+                    content = re.sub(r'</li>', '\n', content, count=1)
+                elif ul_type == 'ol':
+                    current_li_in_ol_index = src_block.count('<li>', ul_start_index, li_span[1])
+                    content = re.sub(r'<li>', ul_level * '    ' + str(current_li_in_ol_index) + '. ', content,
+                                     count=1)
+                    content = re.sub(r'</li>', '\n', content, count=1)
+
+        content = re.sub('<ul>|<ol>', '\n', content)
+        content = re.sub('</ul>|</ol>', '', content)
     content = Pip(content).factory()
-
     return br_to_newline(content)
 
 
@@ -299,7 +364,7 @@ def parser_pre_code(block):
     return code_content
 
 
-# h1-h6 todo 可能还有其他子标签
+# h1-h6 可能还有其他子标签
 def parser_head(block):
     text = block
     tag_name = get_tag_name(block)
