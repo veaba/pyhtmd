@@ -342,34 +342,37 @@ def parser_list(block):
             #           (121, 125, 'ol'), (160, 165, 'ol'),
             #           (170, 175, 'ul'), (180, 185, 'ul')]
             # ul的索引值
-            for item in enumerate(left_ul_index):
-                # print(1111, item)
+            for item in enumerate(ul_span):
                 key = item[0]
-                left_start_key = item[1]  # [0,1,2,4]  => [7,6,5,3]
-                right_end_key = right_ul_index_reverse[key]  # [7,6,5,3]
-                # print('对应：（', left_start_key, right_end_key, "）")  # [0,1,2,4]  => [7,6,5,3]
-                ul_start_key = ul_span[left_start_key][0]  # 0
-                ul_end_key = ul_span[right_end_key][1]  # 1
-                # print('啊哈==：', ul_start_key, ul_end_key)
+                value = item[1]
+                ul_start_key = value[0]
+                ul_end_key = value[1]
+                ul_type = value[2]
+                print('value:', value)  # (170, 175, 'ul')
+                # todo !!!!如何根据索引值找到对应的level级别？？？[0,1,2,4]  => [7,6,5,3]
+                print('VVV-VVV-VVV-VVV')
+                print('ul开始结束(', ul_start_key, ',', ul_end_key, ',', ul_type, ')')
+                print('li开始结束(', li_start_key, ',', li_end_key, ')')
                 if ul_start_key < li_start_key and li_end_key < ul_end_key:
-                    print('li=索引：', li_index_key, ul_start_key, li_start_key, li_end_key, ul_end_key)
-
-                # li_levels_map[li_index_key] = (
-                #     li_index_key, ul_span[left_start_key], ul_start_item[0], ul_end_item[1], li_start_key, li_end_key)
-
-                # ul_start_item = ul_span[ul_value]
-                # # 所对应的右边key
-                # ul_end_value = right_ul_index_reverse[ul_index]
-                # ul_end_item = ul_span[ul_end_value]
-                # if ul_start_item[0] < li_start_key and li_end_key < ul_end_item[1]:
-                #     ul_level_key = ul_index_level[ul_value]
-                #     # (level,type,ul_start,ul_end,li_start,li_end)
-                #     li_levels_map[li_index_key] = (
-                #         ul_level_key, ul_start_item[2], ul_start_item[0], ul_end_item[1], li_start_key, li_end_key)
+                    print('===>', ul_start_key, ',', ul_end_key, ',', ul_type, )
+                    print('===>', li_start_key, ',', li_end_key)
+            # for item in enumerate(left_ul_index):
+            #     # print(1111, item)
+            #     key = item[0]
+            #     left_start_key = item[1]  # [0,1,2,4]  => [7,6,5,3]
+            #     right_end_key = right_ul_index_reverse[key]  # [7,6,5,3]
+            #     # print('对应：（', left_start_key, right_end_key, "）")  # [0,1,2,4]  => [7,6,5,3]
+            #     ul_start_key = ul_span[left_start_key][0]  # 0
+            #     ul_end_key = ul_span[right_end_key][1]  # 1
+            #     # if ul_start_key < li_start_key and li_end_key < ul_end_key:
+            #     print(key, left_start_key, right_end_key, ul_start_key, ul_end_key)
+            #     # (索引值，ul开始，li开始，li结束，ul结束)
+            #     # li_levels_map[li_index_key] = (li_index_key, ul_start_key, li_start_key, li_end_key, ul_end_key)
+            #     # print('li=索引：', li_index_key, ul_start_key, li_start_key, li_end_key, ul_end_key)
 
     get_li_level()
 
-    # print(li_levels_map)
+    print(li_levels_map)
     # for li in enumerate(re.finditer(r'<li>', src_block)):
     #     li_index = li[0]  # index
     #     li_value = li_levels_map[li_index]
