@@ -219,7 +219,11 @@ def parser_list(block):
             del ul_span[0:]
         for item in re.finditer(r'<ul>|</ul>|<ol>|</ol>', block):
             ul_array.append(item.group())
-            ul_span.append(item.span())
+            print(item)
+            if item.group() == '<ul>' or item.group() == '</ul>':
+                ul_span.append(item.span() + ('ul',))
+            elif item.group() == '<ol>' or item.group() == '</ol>':
+                ul_span.append(item.span() + ('ol',))
 
     get_ul_tuple()
 
@@ -324,18 +328,27 @@ def parser_list(block):
     print(55, '左边对应的索引值和level', left_ul_index, left_ul_level)
     print(66, right_ul_index, )
     print(77, ul_index_level)
-    # for li in enumerate(li_block_list):
-    #     index = li[0]
-    #     value = li[1].span()
-    #     li_start = value[0]
-    #     for ul in ul_block_index_tuple_array:
-    #         ul_start = ul[0]
-    #         ul_level = ul[2]
-    #         ul_type = ul[3]
-    #         # if index not in li_levels_map:
-    #         if ul_start < li_start:
-    #             print(index, '级别：' + str(ul_level), value)
-    #             li_levels_map[index] = (ul_level, ul_type)
+
+    for li in enumerate(li_block_list):
+        li_index = li[0]
+        value = li[1].span()
+        li_start = value[0]
+        for item in enumerate(ul_span):
+            ul_index = item[0]
+            ul = item[1]
+            ul_start = ul[0]
+            ul_end = ul[1]
+            ul_level = ul_index_level[ul_index]
+            ul_type = ul[2]
+            print('-------------------')
+            print('ul_start:', ul_start)
+            print('ul_end:', ul_end)
+            print('ul_level:', ul_level)
+            print('ul_type:', ul_type)
+            print('^^^^^^^^^^^^^^^^^^')
+            if ul_start < li_start:
+                # print(index, '级别：' + str(ul_level), value)
+                li_levels_map[li_index] = (ul_level, ul_type)
     # if ul_type == 'ol':
     #     current_li_in_ol_index = src_block.count('<li>', ul_start, li_start)
     #     content = re.sub(r'<li>', ul_level * '    ' + str(current_li_in_ol_index) + '. ', content,
