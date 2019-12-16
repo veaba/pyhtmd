@@ -195,13 +195,13 @@ demo2 = """
 
 """
 
-# <ul><li>11111</li><li>2222</li><li><ul><li>333</li><li>444</li><li><ul><li>555</li><li>666</li><li>777</li></ul></li></ul></li></ul>
+# <ul><li>11111</li><li>2222</li><li><ul><li>333</li><li>444</li><li><ul><li>555</li><li>666</li><li>777</li></ul></li><li><ol><li>公国</li><li>公国2</li><li>公国3</li></ol></li></ul></li></ul>
 
 
 
 
 item = """
-<ul><li>11111</li><li>2222</li><li><ul><li>333</li><li>444</li><li><ul><li>555</li><li>666</li><li>777</li></ul></li></ul></li><li>11111</li><li><ul><li>555</li><li>666</li><li>777</li></ul></li></ul>
+<ul><li>11111</li><li>2222</li><li><ul><li>333</li><li>444</li><li><ul><li>555</li><li>666</li><li>777</li></ul></li><li><ol><li>公国</li><li>公国2</li><li>公国3</li></ol></li></ul></li></ul>
 """
 
 mk = Pyhtmd(item).markdown()
