@@ -202,7 +202,8 @@ def parser_list(block):
     left_ul_level = []
     # 存储li 所对应的的ul level 数组，然后取第一个，
     li_levels_map = {}  # [(index,(ul_level1,ul_level_2))]
-
+    end_index_array = []  # 获取<ul>level
+    ul_index_level = {}  # 索引值对应的level {0: 0, 1: 1, 2: 2, 5: 1, 3: 2, 4: 1, 6: 1, 7: 0}
     """
      todo 先得到ul块的元数组
      [(start_index,end_index,level,'ul')]
@@ -258,48 +259,63 @@ def parser_list(block):
             del left_ul_level[0:]
         for level in enumerate(left_ul_index):
             print('哈哈：', level)
+            ul_index_level[level[1]] = level[0] * 2 - level[1]
             left_ul_level.append(level[0] * 2 - level[1])
 
     get_level()
 
-    print(block)
+    def end_index():
+        end_min = min(right_ul_index)
+        for item in enumerate(right_ul_index):
+            end_index_array.append(item[0] * 2 - (item[1] - end_min))
+        end_index_array.reverse()
+
+        for item in enumerate(right_ul_index):
+            key = item[0]
+            value = item[1]
+            ul_index_level[value] = end_index_array[key]
+        print('格式化后的索引值：', end_index_array)
+
+    end_index()
     # 替换,此时left_ul_level和left_ul_index长度是一致的
-    for i in range(len(left_ul_start) - 1, -1, -1):
-        current_level = left_ul_level[i]
-        left_index = left_ul_index[i]
-        # 核心算法二：提取<ul><ol>对应</ul></ol>的索引值
-        temp_right_array = [k for k in temp_right_ul_index_array if k > left_index]
-        right_index = temp_right_array[0]
-        temp_right_ul_index_array.remove(right_index)
-        # 字符开始处
-        start_index = ul_span[left_index][0]
-        end_index = ul_span[right_index][1]
-        # print('ul截断：', start_index, end_index+ul_block_index_tuple_array[i-1][2])
-        # 当前节点的字符串
-        current_node = block[start_index:end_index]
-        # block_1 = block[0:start_index] + block[end_index:]
-        get_ul_tuple(init=True)
-        get_list_tag_name(init=True)
-        get_index(init=True)
-        get_level(init=True)
-
-        print(111, current_node)
-        # 解析ol
-        if is_ol(current_node):
-            # content = content + parser_ol_block(current_node, current_level)
-            ul_block_index_tuple_array.append((start_index, end_index, current_level, 'ol'))
-
-        # 解析ul
-        if is_ul(current_node):
-            print('i', i)
-            ul_block_index_tuple_array.append((start_index, end_index, current_level, 'ul'))
-            # content = parser_ul_block(current_node, current_level) + content
-
-    # 上面的循环先得到全部的ul开始到索引值,此时是反序的
-    print('打印ul块的索引值：', ul_block_index_tuple_array)
+    # for i in range(len(left_ul_start) - 1, -1, -1):
+    #     current_level = left_ul_level[i]
+    #     left_index = left_ul_index[i]
+    #     # 核心算法二：提取<ul><ol>对应</ul></ol>的索引值
+    #     temp_right_array = [k for k in temp_right_ul_index_array if k > left_index]
+    #     right_index = temp_right_array[0]
+    #     temp_right_ul_index_array.remove(right_index)
+    #     # 字符开始处
+    #     start_index = ul_span[left_index][0]
+    #     end_index = ul_span[right_index][1]
+    #     # print('ul截断：', start_index, end_index+ul_block_index_tuple_array[i-1][2])
+    #     # 当前节点的字符串
+    #     current_node = block[start_index:end_index]
+    #     # block_1 = block[0:start_index] + block[end_index:]
+    #     get_ul_tuple(init=True)
+    #     get_list_tag_name(init=True)
+    #     get_index(init=True)
+    #     get_level(init=True)
+    #
+    #     print(111, current_node)
+    #     # 解析ol
+    #     if is_ol(current_node):
+    #         # content = content + parser_ol_block(current_node, current_level)
+    #         ul_block_index_tuple_array.append((start_index, end_index, current_level, 'ol'))
+    #
+    #     # 解析ul
+    #     if is_ul(current_node):
+    #         print('i', i)
+    #         ul_block_index_tuple_array.append((start_index, end_index, current_level, 'ul'))
+    #         # content = parser_ul_block(current_node, current_level) + content
+    #
+    # # 上面的循环先得到全部的ul开始到索引值,此时是反序的
+    # print('打印ul块的索引值：', ul_block_index_tuple_array)
 
     # 为li 取得level
     li_block_list = re.finditer(r'<li>', src_block)
+
+    # 获取</ul> 的level
 
     print(11, ul_array)
     print(22, ul_span)
@@ -307,6 +323,7 @@ def parser_list(block):
     print(44, right_ul_end)
     print(55, '左边对应的索引值和level', left_ul_index, left_ul_level)
     print(66, right_ul_index, )
+    print(77, ul_index_level)
     # for li in enumerate(li_block_list):
     #     index = li[0]
     #     value = li[1].span()
