@@ -17,34 +17,18 @@
 - [x] img
 - [x] head html node element
 
+## todo 开发中 
+- 核心的问题是，粘在一起的代码如何拆分？
+- 本质还是要分割的，但具体怎么分割呢？
+- table
+
 ## bug
-当前的list 标签算法无法解析这种结构：
-因为算法中，假定是依次序性ul组成结束的标签
-```html
-<!--假定的是-->
-<ul><li><ul><li></ul><ul><li></li></ul></li></ul>
-<!--bug-->
-<ul>
-    <li>甲甲甲甲甲</li>
-    <li>乙乙乙乙乙</li>
-    <li>
-        <ul>
-            <li>aaaaaaa</li>
-            <li>bbbbbbb</li>
-            <li>ccccccc</li>
-        </ul>
-    </li>
-    <li>丙丙丙丙丙</li>
-    <li>丁丁丁丁丁</li>
-    <li>
-        <ul>
-            <li>33333</li>
-            <li>44444</li>
-            <li>55555</li>
-        </ul>
-    </li>
-</ul>
-```
+- 已解决list算法问题：
+    - 当前的list 标签算法无法解析这种结构：
+    - 因为算法中，假定是依次序性ul组成结束的标签
+    - 核心算法一：算出开始标签的level
+    - 核心算法二：根据左边的开始标签索引值算出其所对应的右边索引值序列，我自己给他起了一个炫酷拽炸天的名字：标记逆序奇偶互斥算法
+    - 上面两个算法我自己算出来的，第一个花了两天，第二个花了1-2周
 
 ## install 
 
@@ -77,5 +61,3 @@ content=md.markdown()
 print(content) # `Hello, world ! by Pyhtmd.`
 ```
 
-## todo 开发中 
-- 核心的问题是，粘在一起的代码如何拆分？

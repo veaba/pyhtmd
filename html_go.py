@@ -1,4 +1,4 @@
-# 一个测试文件
+# 一个测试文件,后续尝试全部html转换切割，可以借用那个ul算法
 import re
 
 from test_html import html_content
@@ -90,4 +90,3 @@ all_tag_list = re.findall(r'</(.*?)>', content)
 
 print(all_tag_list)
 
-# todo 需要跳开img 和 a标签

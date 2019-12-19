@@ -15,6 +15,7 @@ from .utils import remove_parent_wrap, \
     get_tag_name, \
     get_href, \
     get_src, get_alt, clean_up, \
+    get_right_index, \
     is_ol, \
     is_ul
 
@@ -153,35 +154,9 @@ def parser_ol(block):
     return parser_list(block)
 
 
-# 纯ul标签
-# def parser_ul_block(node, level):
-#     node = remove_list_whitespace(node)
-#     node = re.sub(r'>[ ]<', '', node)
-#     for index in range(node.count('<li>')):
-#         node = re.sub(r'<li>', '    ' * level + '- ', node, count=1)
-#         node = remove_p(node)
-#     node = re.sub(r'</li>', '\n', node)
-#     node = re.sub(r'<ul>', '', node)
-#     node = re.sub(r'</ul>', '', node)
-#     print('结果：\n', node)
-#     return node
-
-
-# # 纯ol标签
-# def parser_ol_block(node, level):
-#     for index in range(node.count('<li>')):
-#         node = re.sub(r'<li>', '    ' * level + str(index + 1) + '. ', node, count=1)
-#         node = remove_p(node)
-#         # 移除p标签
-#     node = re.sub(r'</li>', '\n', node)
-#     node = re.sub(r'<ol>', '', node)
-#     node = re.sub(r'</ol>', '', node)
-#     return node
-
-
 # 核心算法，解析列表标签
 # 这个也是一个逆序算法，从后往前切割
-# fix bug：2019年12月13日10:32:13 始终在后面
+# fix bug：2019年12月13日10:32:13 始终在后面，采用标记逆序奇偶互斥算法
 # > 空格很多 <
 def parser_list(block):
     # clear ul、ol tag
@@ -201,21 +176,12 @@ def parser_list(block):
     right_ul_index = []
     left_ul_level = []
     # 存储li 所对应的的ul level 数组，然后取第一个，
-    li_levels_map = {}  # [(index,(ul_level1,ul_level_2))]
+    li_levels_map = {}  # [(index,(ul开始，li开始，ul结束,ul_level，ul_type))]
     end_index_array = []  # 获取<ul>level
     ul_index_level = {}  # 索引值对应的level {0: 0, 1: 1, 2: 2, 5: 1, 3: 2, 4: 1, 6: 1, 7: 0}
-    """
-     todo 先得到ul块的元数组
-     [(start_index,end_index,level,'ul')]
-     [(start_index,end_index,level,'ol')]
-     
-    """
 
     # get ul tag params
-    def get_ul_tuple(init=False):
-        if init:
-            del ul_array[0:]
-            del ul_span[0:]
+    def get_ul_tuple():
         for item in re.finditer(r'<ul>|</ul>|<ol>|</ol>', block):
             ul_array.append(item.group())
             print('ul_span:', item)
@@ -227,10 +193,7 @@ def parser_list(block):
     get_ul_tuple()
 
     # get left start tag <ul> <ol>
-    def get_list_tag_name(init=False):
-        if init:
-            del left_ul_start[0:]
-            del right_ul_end[0:]
+    def get_list_tag_name():
         for item in enumerate(ul_array):
             if item[1] == '<ul>' or item[1] == '<ol>':
                 left_ul_start.append(item[1])
@@ -241,10 +204,7 @@ def parser_list(block):
     get_list_tag_name()
 
     # get the tag index value
-    def get_index(init=False):
-        if init:
-            del left_ul_index[0:]
-            del right_ul_index[0:]
+    def get_index():
         for item in enumerate(ul_array):
             if item[1] == '<ul>' or item[1] == '<ol>':
                 left_ul_index.append(item[0])
@@ -255,9 +215,7 @@ def parser_list(block):
     get_index()
 
     # 提取ul级别，核心算法一：提取<ul><ol>的level
-    def get_level(init=False):
-        if init:
-            del left_ul_level[0:]
+    def get_level():
         for level in enumerate(left_ul_index):
             print('哈哈：', level)
             ul_index_level[level[1]] = level[0] * 2 - level[1]
@@ -278,55 +236,11 @@ def parser_list(block):
         print('格式化后的索引值：', end_index_array)
 
     end_index()
-    # 替换,此时left_ul_level和left_ul_index长度是一致的
-    # for i in range(len(left_ul_start) - 1, -1, -1):
-    #     current_level = left_ul_level[i]
-    #     left_index = left_ul_index[i]
-    #     # 核心算法二：提取<ul><ol>对应</ul></ol>的索引值
-    #     temp_right_array = [k for k in temp_right_ul_index_array if k > left_index]
-    #     right_index = temp_right_array[0]
-    #     temp_right_ul_index_array.remove(right_index)
-    #     # 字符开始处
-    #     start_index = ul_span[left_index][0]
-    #     end_index = ul_span[right_index][1]
-    #     # print('ul截断：', start_index, end_index+ul_block_index_tuple_array[i-1][2])
-    #     # 当前节点的字符串
-    #     current_node = block[start_index:end_index]
-    #     # block_1 = block[0:start_index] + block[end_index:]
-    #     get_ul_tuple(init=True)
-    #     get_list_tag_name(init=True)
-    #     get_index(init=True)
-    #     get_level(init=True)
-    #
-    #     print(111, current_node)
-    #     # 解析ol
-    #     if is_ol(current_node):
-    #         # content = content + parser_ol_block(current_node, current_level)
-    #         ul_block_index_tuple_array.append((start_index, end_index, current_level, 'ol'))
-    #
-    #     # 解析ul
-    #     if is_ul(current_node):
-    #         print('i', i)
-    #         ul_block_index_tuple_array.append((start_index, end_index, current_level, 'ul'))
-    #         # content = parser_ul_block(current_node, current_level) + content
-    #
-    # # 上面的循环先得到全部的ul开始到索引值,此时是反序的
-    # print('打印ul块的索引值：', ul_block_index_tuple_array)
 
     # 匹配对应的右边索引值
-    copy_right = right_ul_index.copy()
-    copy_right.reverse()  # todo error 这个算法不对
-    right_ul_index_reverse = copy_right  # 逆序
+    right_ul_index = get_right_index(left_ul_index)
 
-    # print('ul_span:', ul_span)
-    # print('left_ul_index:', left_ul_index)  # [0, 1, 2, 4]
-    # print('right_ul_index_reverse:', right_ul_index_reverse)  # [7, 6, 5, 3]
-    # print('ul_index_level:', ul_index_level)  # {0: 0, 1: 1, 2: 2, 4: 2, 3: 2, 5: 1, 6: 0, 7: 0}
-    # print('end_index_array:', end_index_array)  # [2, 1, 0, 0]
-    # print('left_ul_level:', left_ul_level)  # [2, 1, 0, 0]
-
-    # # 组合索引值对应的map
-    # # todo 问题：ol 没有
+    # 组合索引值对应的map
     def get_li_level():
         # 为li 取得level
         li_block_list = re.finditer(r'<li>', src_block)
@@ -334,70 +248,42 @@ def parser_list(block):
             li_index_key = li_item[0]
             value = li_item[1].span()
             li_start_key = value[0]
-            li_end_key = value[1]
-            # ul_index_level {0: 0, 1: 1, 2: 2, 4: 2, 3: 2, 5: 1, 6: 0, 7: 0} 级别
-            # ul_span [
-            #           (0, 4, 'ul'), (35, 39, 'ul'),
-            #           (67, 71, 'ul'), (107, 112, 'ul'),
-            #           (121, 125, 'ol'), (160, 165, 'ol'),
-            #           (170, 175, 'ul'), (180, 185, 'ul')]
-            # ul的索引值
-            for item in enumerate(ul_span):
+            for item in enumerate(left_ul_index):
                 key = item[0]
-                value = item[1]
-                ul_start_key = value[0]
-                ul_end_key = value[1]
-                ul_type = value[2]
-                print('value:', value)  # (170, 175, 'ul')
-                # todo !!!!如何根据索引值找到对应的level级别？？？[0,1,2,4]  => [7,6,5,3]
-                print('VVV-VVV-VVV-VVV')
-                print('ul开始结束(', ul_start_key, ',', ul_end_key, ',', ul_type, ')')
-                print('li开始结束(', li_start_key, ',', li_end_key, ')')
-                if ul_start_key < li_start_key and li_end_key < ul_end_key:
-                    print('===>', ul_start_key, ',', ul_end_key, ',', ul_type, )
-                    print('===>', li_start_key, ',', li_end_key)
-            # for item in enumerate(left_ul_index):
-            #     # print(1111, item)
-            #     key = item[0]
-            #     left_start_key = item[1]  # [0,1,2,4]  => [7,6,5,3]
-            #     right_end_key = right_ul_index_reverse[key]  # [7,6,5,3]
-            #     # print('对应：（', left_start_key, right_end_key, "）")  # [0,1,2,4]  => [7,6,5,3]
-            #     ul_start_key = ul_span[left_start_key][0]  # 0
-            #     ul_end_key = ul_span[right_end_key][1]  # 1
-            #     # if ul_start_key < li_start_key and li_end_key < ul_end_key:
-            #     print(key, left_start_key, right_end_key, ul_start_key, ul_end_key)
-            #     # (索引值，ul开始，li开始，li结束，ul结束)
-            #     # li_levels_map[li_index_key] = (li_index_key, ul_start_key, li_start_key, li_end_key, ul_end_key)
-            #     # print('li=索引：', li_index_key, ul_start_key, li_start_key, li_end_key, ul_end_key)
+                left_start_key = item[1]  # [0,1,2,4]  => [7,6,5,3]
+                right_end_key = right_ul_index[key]  # [7,6,5,3]
+                ul_start_key = ul_span[left_start_key][0]  # 0
+                ul_end_key = ul_span[right_end_key][1]  # 1
+                ul_the_level = ul_index_level[key]
+                ul_the_type = ul_span[left_start_key][2]
+                if ul_start_key < li_start_key < ul_end_key:
+                    # (ul开始，li开始，ul结束,ul_level，ul_type)
+                    tuple_params = (ul_start_key, li_start_key, ul_end_key, ul_the_level, ul_the_type)
+                    li_levels_map[li_index_key] = tuple_params
 
     get_li_level()
 
-    print(li_levels_map)
-    # for li in enumerate(re.finditer(r'<li>', src_block)):
-    #     li_index = li[0]  # index
-    #     li_value = li_levels_map[li_index]
-    #     ul_level = li_value[0]
-    #     ul_type = li_value[1]
-    #     ul_start = li_value[2]
-    #     ul_end = li_value[3]
-    #     li_start = li_value[4]
-    #     li_end = li_value[5]
-    #
-    #     print('哈哈===>：', li_value)
-    #     if ul_type == 'ol':
-    #         print('=============')
-    #         current_li_in_ol_index = src_block.count('<li>', ul_start, li_end)
-    #         content = re.sub(r'<li>', ul_level * '    ' + str(current_li_in_ol_index) + '. ', content,
-    #                          count=1)
-    #         content = re.sub(r'</li>', '\n', content, count=1)
-    #     if ul_type == 'ul':
-    #         print('ul开始结束：', '(', ul_start, ul_end, ')')
-    #         content = re.sub(r'<li>', '    ' * ul_level + '- ', content, count=1)
-    #         content = re.sub(r'</li>', '\n', content, count=1)
-    #     content = re.sub('<ul>|<ol>', '\n', content)
-    #     content = re.sub('</ul>|</ol>', '', content)
-    #
-    # print('li_level：', li_levels_map)
+    # 根据li_levels_map 去替换li 和计算ol>li的序列号
+    for li in enumerate(re.finditer(r'<li>', src_block)):
+        li_index = li[0]  # index
+        li_value = li_levels_map[li_index]
+        ul_start = li_value[0]
+        li_start = li_value[1]
+        # ul_end = li_value[2]
+        ul_level = li_value[3]
+        ul_type = li_value[4]
+        if ul_type == 'ol':
+            current_li_in_ol_index = src_block.count('<li>', ul_start, li_start)
+            content = re.sub(r'<li>', ul_level * '    ' + str(current_li_in_ol_index) + '. ', content,
+                             count=1)
+            content = re.sub(r'</li>', '\n', content, count=1)
+        if ul_type == 'ul':
+            content = re.sub(r'<li>', '    ' * ul_level + '- ', content, count=1)
+            content = re.sub(r'</li>', '\n', content, count=1)
+        content = re.sub('<ul>|<ol>', '\n', content)
+        content = re.sub('</ul>|</ol>', '', content)
+
+    print('li_level：', li_levels_map)
 
     content = Pip(content).factory()
     return br_to_newline(content)

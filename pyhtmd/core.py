@@ -1,6 +1,7 @@
-# TODO 1、校验是合法的HTML字符串
-# TODO 2、将html string 分割为数组才能使用本文件
-# todo：逐行将HTML转为markdown字符串输出
+# 1、校验是合法的HTML字符串
+# 2、将html string 分割为数组才能使用本文件
+# 3、逐行将HTML转为markdown字符串输出
+# 4、尚未处理table等不常见的标签
 # html to markdown
 
 import re
