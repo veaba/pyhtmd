@@ -362,7 +362,7 @@ def get_tag_name(block):
     return last_tag_name
 
 
-# **** level 逆序标记奇偶互斥算法（帅气的名字）*********
+# **** level 标记逆序奇偶互斥算法（帅气的名字）*********
 
 # 是偶数则返回True，否则返回False
 def is_even(num):
@@ -377,31 +377,22 @@ def is_even(num):
 def get_right_index(left):
     left_count = len(left)
     all_array = [i for i in range(left_count * 2)]
-    # 可以得出右边的元素集合，但此时，次序是错乱的.
     right_array_temp = list(set(all_array).difference(set(left)))
     right_array = []
-    # 最后一个索引1，使用差值替换
-    # 1. 总长度
     all_len = len(all_array)
-    # 2. 最大值
     max_value = all_len - 1
-    # 3. 左边总长度(和右边总长度是相等的)
     left_len_value = len(left)
 
     for i in range(left_len_value - 1, -1, -1):
-        k = i  # 索引值
-        v = left[i]  # 当前值
-        # 最后一个
+        k = i
+        v = left[i]
         if k == left_len_value - 1:
             right_array.insert(0, v + 1)
-        # 第一个
         elif k == 0:
             right_array.insert(0, max_value)
         else:
-            # 比v大，且与v奇偶互斥。且不存在left 且不存在right里面
-            right_stay_array = list(set(right_array_temp).difference(set(right_array)))  # 去临时数组和right_array的交集
+            right_stay_array = list(set(right_array_temp).difference(set(right_array)))  # 取临时数组和right_array的交集
             big_then_array = [big for big in right_stay_array if big > v]  # 取出比v还大的数组
-            # 取出奇偶互斥的数组
             if is_even(v):
                 mutex_array = [mutex for mutex in big_then_array if not is_even(mutex)]  # 当v为偶数时候，取出奇数
             else:
@@ -409,7 +400,4 @@ def get_right_index(left):
             min_value = min(mutex_array)
             right_array.insert(0, min_value)
 
-        # print('left :', left)
-        # print('      ', ' ↓ ' * left_len_value)
-        # print('right:', right_array)
     return right_array

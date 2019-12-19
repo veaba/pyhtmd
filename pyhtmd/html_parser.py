@@ -184,7 +184,6 @@ def parser_list(block):
     def get_ul_tuple():
         for item in re.finditer(r'<ul>|</ul>|<ol>|</ol>', block):
             ul_array.append(item.group())
-            print('ul_span:', item)
             if item.group() == '<ul>' or item.group() == '</ul>':
                 ul_span.append(item.span() + ('ul',))
             elif item.group() == '<ol>' or item.group() == '</ol>':
@@ -217,7 +216,6 @@ def parser_list(block):
     # 提取ul级别，核心算法一：提取<ul><ol>的level
     def get_level():
         for level in enumerate(left_ul_index):
-            print('哈哈：', level)
             ul_index_level[level[1]] = level[0] * 2 - level[1]
             left_ul_level.append(level[0] * 2 - level[1])
 
@@ -233,8 +231,7 @@ def parser_list(block):
             key = item[0]
             value = item[1]
             ul_index_level[value] = end_index_array[key]
-        print('格式化后的索引值：', end_index_array)
-
+            
     end_index()
 
     # 匹配对应的右边索引值
@@ -282,9 +279,6 @@ def parser_list(block):
             content = re.sub(r'</li>', '\n', content, count=1)
         content = re.sub('<ul>|<ol>', '\n', content)
         content = re.sub('</ul>|</ol>', '', content)
-
-    print('li_level：', li_levels_map)
-
     content = Pip(content).factory()
     return br_to_newline(content)
 
