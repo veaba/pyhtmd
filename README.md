@@ -10,7 +10,7 @@
 - 存在个别自定义标签无法识别，基本可以适用平常场景
 - python官方html_parser https://docs.python.org/zh-cn/3.7/library/html.parser.html
 - html.parser 源码 https://github.com/python/cpython/blob/3.7/Lib/html/parser.py
-
+- 不支持美化后的HTML内容，需要内容紧凑
 ## parser
 - [x] single html node element
 - [x] infinite html list node element

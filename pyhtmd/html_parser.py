@@ -177,7 +177,6 @@ def parser_list(block):
     left_ul_level = []
     # 存储li 所对应的的ul level 数组，然后取第一个，
     li_levels_map = {}  # [(index,(ul开始，li开始，ul结束,ul_level，ul_type))]
-    end_index_array = []  # 获取<ul>level
     ul_index_level = {}  # 索引值对应的level {0: 0, 1: 1, 2: 2, 5: 1, 3: 2, 4: 1, 6: 1, 7: 0}
 
     # get ul tag params
@@ -221,19 +220,6 @@ def parser_list(block):
 
     get_level()
 
-    def end_index():
-        end_min = min(right_ul_index)
-        for item in enumerate(right_ul_index):
-            end_index_array.append(item[0] * 2 - (item[1] - end_min))
-        end_index_array.reverse()
-
-        for item in enumerate(right_ul_index):
-            key = item[0]
-            value = item[1]
-            ul_index_level[value] = end_index_array[key]
-            
-    end_index()
-
     # 匹配对应的右边索引值
     right_ul_index = get_right_index(left_ul_index)
 
@@ -251,7 +237,7 @@ def parser_list(block):
                 right_end_key = right_ul_index[key]  # [7,6,5,3]
                 ul_start_key = ul_span[left_start_key][0]  # 0
                 ul_end_key = ul_span[right_end_key][1]  # 1
-                ul_the_level = ul_index_level[key]
+                ul_the_level = left_ul_level[key]
                 ul_the_type = ul_span[left_start_key][2]
                 if ul_start_key < li_start_key < ul_end_key:
                     # (ul开始，li开始，ul结束,ul_level，ul_type)
@@ -266,7 +252,6 @@ def parser_list(block):
         li_value = li_levels_map[li_index]
         ul_start = li_value[0]
         li_start = li_value[1]
-        # ul_end = li_value[2]
         ul_level = li_value[3]
         ul_type = li_value[4]
         if ul_type == 'ol':
