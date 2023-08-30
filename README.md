@@ -1,6 +1,6 @@
 # 一款Python版本的HTML转markdown解析器，不使用任何第三方工具，实验demo
 
-请勿使用于生成环境，这个只是一次尝试demo项目
+请勿使用于生产环境，这个只是一次尝试demo项目
 
 
 ## install 
@@ -12,7 +12,7 @@
 ```python
 from pyhtmd import Pyhtmd
 html="<code> Hello, world ! by Pyhtmd. </code>"
-md= Pyhtmd(html)
+md=Pyhtmd(html)
 content=md.markdown()
 print(content) # `Hello, world ! by Pyhtmd.`
 ```
@@ -24,11 +24,11 @@ Pyhtmd(html,
 )
 
 - language：类型 string （js、python、java等）
-- img:{Boolean}，默认True，可以不需要img渲染
+- img:{Boolean}，默认 `True`，可以不需要 `img`渲染
 ```python
 from pyhtmd import Pyhtmd
 html="<pre><code>import time\n print(time.time()) </code><pre>"
-md= Pyhtmd(html,language="python")
+md=Pyhtmd(html,language="python")
 content=md.markdown()
 print(content) # `Hello, world ! by Pyhtmd.`
 ```
